@@ -1,1 +1,1 @@
-# game-discovery
+# meal-recipes
