@@ -1,4 +1,3 @@
-# meal-recipes
 # Meal Recipes Application
 
 ## Overview
