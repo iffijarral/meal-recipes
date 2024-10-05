@@ -12,14 +12,16 @@ import AreaListAside from "./components/AreaListAside";
 import { MealDetail } from "./interfaces/MealDetail";
 import useMealDetails from "./hooks/useMealDetails";
 import MealDetails from "./components/MealDetails";
+import IngredientListAside from "./components/IngredientListAside";
 
 export interface MealQuery {
     category: Category | null;
-    area: Area | null;  
+    area: Area | null;
+    ingredient: AvailableIngredient | null;  
 }
 
 function App() {
-    const [mealQuery, setMealQuery] = useState<MealQuery>({ category: null, area: null });
+    const [mealQuery, setMealQuery] = useState<MealQuery>({ category: null, area: null, ingredient: null });
     const [selectedMealId, setSelectedMealId] = useState<string | null>(null);
 
     // Fetch categories and areas
@@ -27,14 +29,11 @@ function App() {
     const { areas, loading: areasLoading, error: areasError } = useAreas();
 
     // Fetch meal details when a meal is selected
-    const { mealDetails, error: mealError, loading: mealLoading } = useMealDetails(selectedMealId);
-
-    console.log('selected mealId:', selectedMealId);
-    console.log('mealDetails:', mealDetails);
+    const { mealDetails, error: mealError, loading: mealLoading } = useMealDetails(selectedMealId);    
 
     useEffect(() => {
         if (categories.length > 0 && !mealQuery.category) {
-            setMealQuery({ category: categories[0], area: null });
+            setMealQuery({ category: categories[0], area: null, ingredient: null });
         }
     }, [categories, mealQuery.category]);
 
@@ -69,6 +68,10 @@ function App() {
                     <AreaListAside
                         selectedArea={mealQuery.area}
                         onSelectArea={(area) => setMealQuery({ ...mealQuery, area })}
+                    />
+                    <IngredientListAside
+                        selectedIngredient={mealQuery.ingredient}
+                        onSelectIngredient={(ingredient) => setMealQuery({ ...mealQuery, ingredient })}
                     />
                 </GridItem>
             </Show>
