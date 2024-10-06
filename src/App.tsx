@@ -13,6 +13,7 @@ import { MealDetail } from "./interfaces/MealDetail";
 import useMealDetails from "./hooks/useMealDetails";
 import MealDetails from "./components/MealDetails";
 import IngredientListAside from "./components/IngredientListAside";
+import { AvailableIngredient } from "./interfaces/AvailableIngredient";
 
 export interface MealQuery {
     category: Category | null;
