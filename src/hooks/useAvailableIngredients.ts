@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { getRequest } from '../services/AxiosClient';
+import { AvailableIngredient } from '../interfaces/AvailableIngredient';
 
 interface AvailableIngredientResponse {
     count: number;
