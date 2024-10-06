@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import useAvailableIngredients from '../hooks/useAvailableIngredients'
 import { Box, Button, Heading, HStack, List, ListItem, Spinner } from '@chakra-ui/react';
+import { AvailableIngredient } from '../interfaces/AvailableIngredient';
 
 interface Props {
     onSelectIngredient: (ingredient: AvailableIngredient) => void;
