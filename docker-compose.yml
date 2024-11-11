@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - "4000:4000"     # Expose backend on port 4000
+    env_file:
+      - .env
+    depends_on:
+      - mongodb
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "5173:5173"     # Expose frontend on port 5173 the defalut port of vite dev server
+    depends_on:
+      - backend         # Ensure backend is running before frontend
+    env_file:
+      - .env
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"   # Expose MongoDB
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
