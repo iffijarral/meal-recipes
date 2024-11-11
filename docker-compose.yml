@@ -19,7 +19,7 @@ services:
     depends_on:
       - backend         # Ensure backend is running before frontend
     env_file:
-      - .env
+      - .env    
 
   mongodb:
     image: mongo:latest
