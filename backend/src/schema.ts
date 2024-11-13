@@ -1,6 +1,5 @@
-// schema/schema.js
-const { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLList } = require('graphql');
-const Meal = require('./models/Meal');
+import { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLList } from 'graphql';
+import Meal from './models/Meal';
 
 const MealType = new GraphQLObjectType({
   name: 'Meal',
@@ -36,7 +35,6 @@ const RootQuery = new GraphQLObjectType({
   },
 });
 
-// Mutation starts
 const Mutation = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
@@ -60,7 +58,7 @@ const Mutation = new GraphQLObjectType({
   },
 });
 
-module.exports = new GraphQLSchema({
+export default new GraphQLSchema({
   query: RootQuery,
   mutation: Mutation,
 });
