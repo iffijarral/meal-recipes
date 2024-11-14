@@ -1,0 +1,30 @@
+type Query {
+  meal(id: ID!): Meal
+  meals: [Meal!]!
+}
+
+type Meal {
+  id: ID!
+  name: String!
+  category: String!
+  ingredients: [String!]!
+  tags: [String!]!
+  area: String
+  youtubeLink: String
+  image: String
+  description: String
+}  
+
+type Mutation {
+  addMeal(
+    name: String!
+    category: String!
+    ingredients: [String!]!
+    tags: [String!]!
+    area: String
+    youtubeLink: String
+    image: String
+    description: String
+  ): Meal
+}
+
