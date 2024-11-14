@@ -1,6 +1,6 @@
 // models/Meal.ts
 import mongoose, { Schema, Document, Types } from 'mongoose'
-import { IUser } from './User';
+import { IUser } from './User.js';
 
 interface IMeal extends Document {
   name: string;

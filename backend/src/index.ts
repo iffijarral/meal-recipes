@@ -1,26 +1,44 @@
 import express from 'express';
-import mongoose from 'mongoose';
-import { graphqlHTTP } from 'express-graphql';
-import schema from './schema';
+import cors from 'cors';
 
+//highlight-start
+import { gql } from "graphql-tag";
+import { ApolloServer } from '@apollo/server';
+import { buildSubgraphSchema } from '@apollo/subgraph';
+import { expressMiddleware } from '@apollo/server/express4';
+import { resolvers } from './resolvers.js';
+import { readFileSync } from "fs";
+//highlight-end
+
+const PORT = process.env.PORT || 4000;
 const app = express();
-const port = process.env.PORT || 4000;
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI as string)
-  .then(() => {
-    console.log('Connected to MongoDB');
-  })
-  .catch(err => {
-    console.error('Error connecting to MongoDB:', err);
-  });
+app.use(cors());
+app.use(express.json());
 
-// Use GraphQL
-app.use('/graphql', graphqlHTTP({
-  schema,
-  graphiql: true,
-}));
+//highlight-start
+const typeDefs = gql(
+    readFileSync("./src/schema.graphql", {
+      encoding: "utf-8",
+    })
+  );
 
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}/graphql`);
+const server = new ApolloServer({
+    schema: buildSubgraphSchema({ typeDefs, resolvers }),
+});
+// Note you must call `start()` on the `ApolloServer`
+// instance before passing the instance to `expressMiddleware`
+await server.start();
+//highlight-end
+
+app.use(
+    '/graphql',  
+    cors(),  
+    express.json(),
+    expressMiddleware(server),
+  );
+
+// start the Express server
+app.listen(PORT, () => {
+  console.log(`Server is running on port: ${PORT}`);
 });
