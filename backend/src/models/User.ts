@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 
 // Define the User interface
 interface IUser extends Document {
+  name: string;
   email: string;
   password: string;
   role: 'user' | 'admin';
@@ -11,6 +12,10 @@ interface IUser extends Document {
 
 // Define the User schema
 const userSchema: Schema<IUser> = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true    
+  },
   email: {
     type: String,
     required: true,
