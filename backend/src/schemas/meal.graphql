@@ -1,6 +1,6 @@
 type Query {
   meal(id: ID!): Meal
-  meals: [Meal!]!
+  meals(limit: Int, offset: Int): [Meal!]!  
 }
 
 type Meal {
@@ -27,4 +27,3 @@ type Mutation {
     description: String
   ): Meal
 }
-

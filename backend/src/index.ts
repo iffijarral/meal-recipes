@@ -6,7 +6,8 @@ import { gql } from "graphql-tag";
 import { ApolloServer } from '@apollo/server';
 import { buildSubgraphSchema } from '@apollo/subgraph';
 import { expressMiddleware } from '@apollo/server/express4';
-import { resolvers } from './resolvers.js';
+import { resolvers } from './resolvers/index.js';
+import { typeDefs } from './schemas/index.js';
 import { readFileSync } from "fs";
 //highlight-end
 
@@ -17,11 +18,11 @@ app.use(cors());
 app.use(express.json());
 
 //highlight-start
-const typeDefs = gql(
-    readFileSync("./src/schema.graphql", {
-      encoding: "utf-8",
-    })
-  );
+// const typeDefs = gql(
+//     readFileSync("./src/schema.graphql", {
+//       encoding: "utf-8",
+//     })
+//   );
 
 const server = new ApolloServer({
     schema: buildSubgraphSchema({ typeDefs, resolvers }),
