@@ -1,45 +1,24 @@
-import express from 'express';
-import cors from 'cors';
-
-//highlight-start
-import { gql } from "graphql-tag";
-import { ApolloServer } from '@apollo/server';
-import { buildSubgraphSchema } from '@apollo/subgraph';
-import { expressMiddleware } from '@apollo/server/express4';
-import { resolvers } from './resolvers/index.js';
-import { typeDefs } from './schemas/index.js';
-import { readFileSync } from "fs";
-//highlight-end
+import createServer from "./config/server.js";
+import { verifyEmail } from "./controllers/verificationController.js";
+import { limiter } from "./utils/limitAttempts.js";
 
 const PORT = process.env.PORT || 4000;
-const app = express();
 
-app.use(cors());
-app.use(express.json());
+const startServer = async () => {
+  try {
+    const app = await createServer();
 
-//highlight-start
-// const typeDefs = gql(
-//     readFileSync("./src/schema.graphql", {
-//       encoding: "utf-8",
-//     })
-//   );
+    // More routes
+    app.get('/verify-email', limiter, verifyEmail);
+    
+    // Start the Express server
+    app.listen(PORT, () => {
+      console.log(`Server is running on port: ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Error starting server:', error);
+  }
+};
 
-const server = new ApolloServer({
-    schema: buildSubgraphSchema({ typeDefs, resolvers }),
-});
-// Note you must call `start()` on the `ApolloServer`
-// instance before passing the instance to `expressMiddleware`
-await server.start();
-//highlight-end
-
-app.use(
-    '/graphql',  
-    cors(),  
-    express.json(),
-    expressMiddleware(server),
-  );
-
-// start the Express server
-app.listen(PORT, () => {
-  console.log(`Server is running on port: ${PORT}`);
-});
+// Call the function to start the server
+startServer();
