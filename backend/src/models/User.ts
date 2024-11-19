@@ -7,6 +7,10 @@ interface IUser extends Document {
   email: string;
   password: string;
   role: 'user' | 'admin';
+  isActive: boolean;
+  isVerified: boolean;  
+  createdAt?: Date;
+  updatedAt?: Date;
   comparePassword(password: string): Promise<boolean>;
 }
 
@@ -31,7 +35,10 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
     enum: ['user', 'admin'],
     default: 'user',
   },
-});
+  isActive: { type: Boolean, default: false },
+  isVerified: { type: Boolean, default: false },
+  
+}, { timestamps: true });
 
 // Hash the password before saving the user document
 userSchema.pre<IUser>('save', async function (next) {

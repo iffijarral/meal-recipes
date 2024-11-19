@@ -10,6 +10,8 @@ services:
       - .env
     depends_on:
       - mongodb
+    networks:
+      - app-network
 
   frontend:
     build: ./frontend
@@ -19,7 +21,9 @@ services:
     depends_on:
       - backend         # Ensure backend is running before frontend
     env_file:
-      - .env    
+      - .env
+    networks:
+      - app-network
 
   mongodb:
     image: mongo:latest
@@ -28,6 +32,22 @@ services:
       - "27017:27017"   # Expose MongoDB
     volumes:
       - mongo-data:/data/db
+    networks:
+      - app-network
+  nginx:
+    image: nginx:stable-alpine                                                                                                                            
+    volumes:                                                                                                                                              
+      - ./nginx-config:/etc/nginx/conf.d                                                                                                                  
+    ports:                                                                                                                                                
+      - 80:80
+    networks:
+      - app-network
+    depends_on:
+      - frontend
+      - backend
 
 volumes:
   mongo-data:
+networks:
+  app-network:
+    driver: bridge

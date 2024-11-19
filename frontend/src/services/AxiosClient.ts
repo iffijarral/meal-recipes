@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 
 // Create an axios instance
 const axiosClient = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL, // You can switch to your production URL here
+  baseURL: import.meta.env.VITE_BASE_URL_API, // You can switch to your production URL here
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
