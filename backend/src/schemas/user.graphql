@@ -1,19 +1,32 @@
-extend type Query {
-  user(id: ID!): User
-  users(limit: Int, offset: Int): [User!]!
-}
 type User {
     id: ID!
     name: String!
     email: String!
     password: String!
     role: String!
+    isActive: Boolean!
+    isVerified: Boolean!
+}
+type AuthPayload {
+  token: String!
+  user: User!
+}
+extend type Query {
+  user(id: ID!): User
+  users(limit: Int, offset: Int): [User!]!
 }
 extend type Mutation {
-  addUser(
+  signup(
     name: String!
     email: String!
     password: String!    
     role: String!
+    isActive: Boolean!
+    isVerified: Boolean!
   ): User
+
+  login(
+    email: String!
+    password: String!
+  ): AuthPayload!
 }
