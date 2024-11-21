@@ -7,6 +7,7 @@ const links = [
   { label: "Dashboard", href: "/admin/dashboard" },
   { label: "Users", href: "/admin/users" },
   { label: "Settings", href: "/admin/settings" },
+  { label: "Logout", href: "/logout" }
 ];
 
 const AdminHome: React.FC = () => {
