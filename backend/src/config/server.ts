@@ -6,12 +6,24 @@ import { expressMiddleware } from '@apollo/server/express4';
 import { resolvers } from '../resolvers/index.js';
 import { typeDefs } from '../schemas/index.js';
 import { connectDatabase } from '../config/database.js';
+import { logger } from '../utils/logger.js';
+import expressWinston from 'express-winston';
+
 
 const createServer = async () => {
   const app = express();
 
   app.use(cors());
   app.use(express.json());
+
+  // Apply logging middleware
+  app.use(expressWinston.logger({
+    winstonInstance: logger,
+    meta: true,
+    msg: "HTTP {{req.method}} {{req.url}}",
+    expressFormat: true,
+    colorize: false,
+  }));
 
   // Connect to the database
   await connectDatabase();

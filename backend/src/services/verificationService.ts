@@ -23,7 +23,10 @@ export const verifyToken = async (token: string) => {
   const user: IUser | null = await User.findById(verification.userId);
   if (user) {
     user.isVerified = true;
+    user.isActive = true;
     await user.save();
   }
-  await Verification.deleteOne({ _id: verification._id });
+
+  console.log(`User ${verification._id} verified their email at ${new Date().toISOString()}`);
+  await Verification.deleteOne({ _id: verification._id });  
 };

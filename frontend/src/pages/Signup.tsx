@@ -18,16 +18,13 @@ import {
 } from "@chakra-ui/react";
 import { SIGNUP_MUTATION } from "../mutations/mutations";
 import { useMutation } from "@apollo/client";
+import { FormData } from "../interfaces/FormData";
 
 const sanitizeInput = (value: string) => value.trim();
 const sanitizeEmail = (value: string) => value.trim().toLowerCase();
 const sanitizePassword = (value: string) => value;
 
-interface FormData {
-  name: string;
-  email: string;
-  password: string;
-}
+
 
 const Signup = () => {
   const [formData, setFormData] = useState<FormData>({name: '', email: '', password: ''});
@@ -45,7 +42,7 @@ const Signup = () => {
     // Handle signup logic here
     
     const sanitizedData = {
-      name: sanitizeInput(formData.name),
+      name: sanitizeInput(formData.name || ""),
       email: sanitizeEmail(formData.email),
       password: sanitizePassword(formData.password),
       role: 'user',

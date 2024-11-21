@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState, useContext } from "react";
+import { Navigate } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+
 import {
   Box,
   Button,
@@ -11,15 +13,52 @@ import {
   Text,
   useColorModeValue,
   VStack,
-  HStack
+  HStack,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+  Spinner
 } from "@chakra-ui/react";
+import { FormData } from "../interfaces/FormData";
+import { LOGIN_MUTATION } from "../mutations/mutations";
+import { useMutation } from "@apollo/client";
+import { validate } from "../utils/validation";
+import { loginSchema } from "../schemas/loginSchema";
+import AuthContext from "../context/AuthContext";
 
 const Login = () => {
+  const [formData, setFormData] = useState<FormData>({ email: '', password: '' });
+  const [errors, setErrors] = useState<any>({});
+  const [login, { data, loading, error }] = useMutation(LOGIN_MUTATION);
+
+  const { loginContext } = useContext(AuthContext)!;
+
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Handle login logic here
+
+    const { valid, errors } = validate(loginSchema, formData);
+    if (!valid) {
+      setErrors(errors);
+      return;
+    }
+
+    try {
+      const { data } = await login({ variables: formData });
+      loginContext(data.login.token);
+      navigate('/admin/');
+      console.log('Login result:', data);
+    } catch (error) {
+      console.error('Login error:', error);
+    }
   };
 
   return (
@@ -42,11 +81,13 @@ const Login = () => {
           <Heading size="lg">Sign in to your account</Heading>
           <FormControl id="email" isRequired>
             <FormLabel>Email address</FormLabel>
-            <Input type="email" placeholder="Enter your email" />
+            <Input type="email" name="email" placeholder="Your email" onChange={handleChange} />
+            {errors.email && <span>{errors.email.message}</span>}
           </FormControl>
           <FormControl id="password" isRequired>
             <FormLabel>Password</FormLabel>
-            <Input type="password" placeholder="Enter your password" />
+            <Input type="password" name="password" placeholder="Your password" onChange={handleChange} />
+            {errors.password && <span>{errors.password.message}</span>}
           </FormControl>
           <Button
             colorScheme="blue"
@@ -67,6 +108,27 @@ const Login = () => {
               onClick={() => navigate("/signup")}
             >Sign Up</Button>
           </Text>
+          {/* Loading Indicator */}
+          {loading && (
+            <Spinner size="xl" color="blue.500" />
+          )}
+          {/* Error Message */}
+          {error && (
+            <Alert status="error" mt={4}>
+              <AlertIcon />
+              <AlertTitle>Error:</AlertTitle>
+              <AlertDescription>{error.message}</AlertDescription>
+            </Alert>
+          )}
+
+          {/* Success Message */}
+          {data && (
+            <Alert status="success" mt={4}>
+              <AlertIcon />
+              <AlertTitle>Signup successful!</AlertTitle>
+              <AlertDescription>Welcome, {data.signup.username}</AlertDescription>
+            </Alert>
+          )}
         </VStack>
       </Box>
     </Box>
