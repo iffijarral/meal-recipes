@@ -9,7 +9,8 @@ const startServer = async () => {
     const app = await createServer();
 
     // More routes
-    app.get('/verify-email', limiter, verifyEmail);
+    app.get('/api/verify-email', limiter, verifyEmail);
+    
     
     // Start the Express server
     app.listen(PORT, () => {
