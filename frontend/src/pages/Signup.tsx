@@ -16,7 +16,7 @@ import {
   AlertDescription,
   Spinner
 } from "@chakra-ui/react";
-import { SIGNUP_MUTATION } from "../mutations/mutations";
+import { SIGNUP_MUTATION } from "../graphql/mutations";
 import { useMutation } from "@apollo/client";
 import { FormData } from "../interfaces/FormData";
 
@@ -53,8 +53,12 @@ const Signup = () => {
     try {
       const result = await signup({ variables: sanitizedData });
       console.log('Signup result:', result);
-    } catch (error) {
-      console.error('Signup error:', error);
+    } catch (error) {      
+      if (error instanceof Error) {
+        console.error('Signup error:', error.message);
+      } else {
+        console.error('Unexpected error:', error);
+      }
     }
   };
 

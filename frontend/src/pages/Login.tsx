@@ -21,7 +21,7 @@ import {
   Spinner
 } from "@chakra-ui/react";
 import { FormData } from "../interfaces/FormData";
-import { LOGIN_MUTATION } from "../mutations/mutations";
+import { LOGIN_MUTATION } from "../graphql/mutations";
 import { useMutation } from "@apollo/client";
 import { validate } from "../utils/validation";
 import { loginSchema } from "../schemas/loginSchema";
@@ -54,10 +54,14 @@ const Login = () => {
     try {
       const { data } = await login({ variables: formData });
       loginContext(data.login.token);
-      navigate('/admin/');
+      navigate('/dashboard');
       console.log('Login result:', data);
     } catch (error) {
-      console.error('Login error:', error);
+      if (error instanceof Error) {
+        console.error('Signup error:', error.message);
+      } else {
+        console.error('Unexpected error:', error);
+      }
     }
   };
 

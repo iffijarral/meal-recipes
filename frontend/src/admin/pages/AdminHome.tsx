@@ -1,28 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 import Sidebar from "../components/Sidebar";
 import MobileHeader from "../components/MobileHeader";
-import { Box, Flex, useDisclosure } from "@chakra-ui/react";
+import { Box, Flex, Text, useDisclosure } from "@chakra-ui/react";
+import MealDetails from "../../components/MealDetails";
+import MealGrid from "../../components/MealGrid";
+import { Category } from "../../interfaces/Category";
+import { Area } from "../../interfaces/Area";
+import { AvailableIngredient } from "../../interfaces/AvailableIngredient";
 
-const links = [
-  { label: "Dashboard", href: "/admin/dashboard" },
-  { label: "Users", href: "/admin/users" },
-  { label: "Settings", href: "/admin/settings" },
-  { label: "Logout", href: "/logout" }
-];
+
+export interface MealQuery {
+  category: Category | null;
+  area: Area | null;
+  ingredient: AvailableIngredient | null;
+}
 
 const AdminHome: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [mealQuery, setMealQuery] = useState<MealQuery>({ category: null, area: null, ingredient: null });
+  const [selectedMealId, setSelectedMealId] = useState<string | null>(null);
 
+  console.log("AdminHome component rendered");
   return (
-    <Flex direction="column" h="100vh">
-      <MobileHeader onOpen={onOpen} title="Admin Panel" />
-      <Flex flex="1">
-        <Sidebar links={links} />
-        <Box flex="1" p="6">
-          {/* Main content goes here */}
-        </Box>
-      </Flex>
-    </Flex>
+    
+      <div>Welcome to the Admin Home Page!</div>
+    
+
   );
 };
 export default AdminHome
