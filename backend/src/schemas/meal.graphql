@@ -1,29 +1,60 @@
-type Query {
-  meal(id: ID!): Meal
-  meals(limit: Int, offset: Int): [Meal!]!  
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  password: String!
+  role: String!
+  isActive: Boolean!
+  isVerified: Boolean!
+}
+
+type Ingredient {
+  name: String
+  measure: String
 }
 
 type Meal {
-  id: ID!
+  id: ID
   name: String!
   category: String!
-  ingredients: [String!]!
-  tags: [String!]!
+  ingredients: [Ingredient!]!
+  tags: [String]
   area: String
   youtubeLink: String
   image: String
   description: String
-}  
+  user: User!
+}
+
+input IngredientInput {
+  name: String
+  measure: String
+}
+
+input MealInput {
+  name: String
+  category: String
+  ingredients: [IngredientInput]
+  tags: [String]
+  area: String
+  youtubeLink: String
+  image: String
+  description: String
+  userId: ID
+}
+
+type Query {
+  user(id: ID!): User
+  users(limit: Int, offset: Int): [User!]!
+  meals: [Meal!]!
+  meal(id: ID!): Meal
+  categories: [String!]!
+  ingredients: [String!]!
+}
 
 type Mutation {
-  addMeal(
-    name: String!
-    category: String!
-    ingredients: [String!]!
-    tags: [String!]!
-    area: String
-    youtubeLink: String
-    image: String
-    description: String
-  ): Meal
+  addMeal(input: MealInput): Meal
+  updateMeal(id: ID, input: MealInput): Meal
+  deleteMeal(id: ID): Meal
 }
+

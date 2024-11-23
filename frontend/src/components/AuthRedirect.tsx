@@ -10,7 +10,7 @@ const AuthRedirect: React.FC<AuthRedirectProps> = ({ children }) => {
   const { user } = useContext(AuthContext)!;
 
   // If the user is already authenticated, redirect to the dashboard
-  return user ? <Navigate to="/admin" replace /> : <>{children}</>;
+  return user ? <Navigate to="/dashboard" replace /> : <>{children}</>;
 };
 
 export default AuthRedirect;

@@ -16,14 +16,14 @@ const createServer = async () => {
   app.use(cors());
   app.use(express.json());
 
-  // Apply logging middleware
-  app.use(expressWinston.logger({
-    winstonInstance: logger,
-    meta: true,
-    msg: "HTTP {{req.method}} {{req.url}}",
-    expressFormat: true,
-    colorize: false,
-  }));
+  // // Apply logging middleware
+  // app.use(expressWinston.logger({
+  //   winstonInstance: logger,
+  //   meta: true,
+  //   msg: "HTTP {{req.method}} {{req.url}}",
+  //   expressFormat: true,
+  //   colorize: false,
+  // }));
 
   // Connect to the database
   await connectDatabase();

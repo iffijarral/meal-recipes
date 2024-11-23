@@ -11,11 +11,17 @@ import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
 import AuthRedirect from "./components/AuthRedirect";
 import Logout from "./components/Logout";
+import Template from "./admin/components/Template";
+import AdminHome from "./admin/pages/AdminHome";
+import Meals from "./admin/pages/Meals";
+
+
 
 const App: React.FC = () => (
   <AuthProvider>
     <Router>
       <Routes>
+        {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route
           path="/login"
@@ -33,12 +39,18 @@ const App: React.FC = () => (
             </AuthRedirect>
           }
         />
-
         <Route path="/verify-email-success" element={<VerifyEmailSuccess />} />
         <Route path="/verify-email-failed" element={<VerifyEmailFailed />} />
-        <Route path="/" element={<PrivateRoute />}>
-          <Route path="/admin/*" element={<AdminDashboard />} />
+
+        {/* Protected Routes */}
+        <Route element={<PrivateRoute />}>
+          <Route path="/dashboard" element={<Template />}>
+            <Route index element={<AdminHome />} /> 
+            <Route path="meals" element={<Meals />} />
+          </Route>
         </Route>
+
+        {/* Catch-All for Unknown Routes */}
         <Route path="*" element={<NotFound />} />
         <Route path="/logout" element={<Logout />} />
       </Routes>

@@ -33,10 +33,14 @@ export const userResolvers = {
         const newUser = await userService.createUser(userData); 
         return newUser;
       } catch (error) { 
-        console.error("Error during signup in user resolvers:", error);
-        throw new Error("Signup failed");
+        if (error instanceof Error) {
+          console.error('Signup error:', error.message);
+          throw new Error(error.message || "Signup failed");
+        } else {
+          throw new Error("Signup failed");
+        }                
       }
-    },
+    }, 
 
     login: async (_: any, { email, password }: any) => {
       try {
@@ -50,14 +54,21 @@ export const userResolvers = {
         if (!isPasswordValid) {
           throw new Error("Invalid credentials");
         }
+        if (!user.isVerified) {
+          throw new Error("User is not verified");
+        }
 
         // Generate JWT
         const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: "1h" });
 
         return { token, user };
       } catch (error) {
-        console.error("Error during login:", error);
-        throw new Error("Login failed");
+        if (error instanceof Error) {
+          console.error('Login error:', error.message);
+          throw new Error(error.message || "Login failed");
+        } else {
+          throw new Error("Login failed");
+        }   
       }
     },
   },

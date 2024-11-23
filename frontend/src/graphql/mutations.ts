@@ -26,3 +26,12 @@ export const LOGIN_MUTATION = gql`
     }
   }
 `;
+
+
+export const ADD_MEAL_MUTATION = gql`
+  mutation AddMeal($input: MealInput!) {
+    addMeal(input: $input) {
+      name
+    }
+  }
+`;
