@@ -1,3 +1,5 @@
+scalar Upload
+
 type User {
   id: ID!
   name: String!
@@ -26,6 +28,10 @@ type Meal {
   user: User!
 }
 
+ type Image {    
+    filename: String!
+  }
+
 input IngredientInput {
   name: String
   measure: String
@@ -49,12 +55,13 @@ type Query {
   meals: [Meal!]!
   meal(id: ID!): Meal
   categories: [String!]!
-  ingredients: [String!]!
+  ingredients: [String!]!  
 }
 
 type Mutation {
   addMeal(input: MealInput): Meal
   updateMeal(id: ID, input: MealInput): Meal
   deleteMeal(id: ID): Meal
+  uploadImage(image: Upload!): Image
 }
 

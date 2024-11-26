@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import {
     Box,
     Button,
@@ -17,41 +17,36 @@ import {
     Spinner,
 } from "@chakra-ui/react";
 import { useMutation, useQuery } from "@apollo/client";
-import { ADD_MEAL_MUTATION } from "../../graphql/mutations"; // Example query
-import { GET_CATEGORIES_INGREDIENTS } from "../../graphql/queries";
-import { IMealInput } from "../../interfaces/interfaces";
-import { Ingredient } from "../../interfaces/Ingredient";
-import AuthContext from "../../context/AuthContext";
+import { ADD_MEAL_MUTATION, UPLOAD_IMAGE } from "../../graphql/mutations.js";
+import { GET_CATEGORIES_INGREDIENTS } from "../../graphql/queries.js";
+import AuthContext from "../../context/AuthContext.js";
 
 const MealForm: React.FC = () => {
-    // State variables for form fields
-    const [name, setName] = useState<string>("");
-    const [category, setCategory] = useState<string>("");
-    const [newCategory, setNewCategory] = useState<string>("");
-    const [ingredients, setIngredients] = useState<Ingredient[]>([{ name: "", measure: "" }]);
+    const [name, setName] = useState("");
+    const [category, setCategory] = useState("");
+    const [newCategory, setNewCategory] = useState("");
+    const [ingredients, setIngredients] = useState([{ name: "", measure: "" }]);
     const [tags, setTags] = useState<string[]>([]);
-    const [area, setArea] = useState<string>("");
-    const [description, setDescription] = useState<string>("");
-    const [image, setImage] = useState<string>("");
-    const [youtubeLink, setYoutubeLink] = useState<string>("");
-    const [newIngredient, setNewIngredient] = useState<string>("");
+    const [area, setArea] = useState("");
+    const [description, setDescription] = useState("");
+    const [file, setFile] = useState<File | null>(null);
+    const [youtubeLink, setYoutubeLink] = useState("");
+    const [newIngredient, setNewIngredient] = useState("");
 
-    // Get user from AuthContext
     const { user } = useContext(AuthContext)!;
 
-    // GraphQL mutation to add a meal
     const [addMeal, { loading, error, data }] = useMutation(ADD_MEAL_MUTATION);
-
-    // Fetch existing categories and ingredients
+    const [uploadImage] = useMutation(UPLOAD_IMAGE);
     const { loading: loadingOptions, error: errorOptions, data: optionsData } = useQuery(
         GET_CATEGORIES_INGREDIENTS
     );
 
-    // Extract categories and ingredients from query data
     const categories = optionsData?.categories || [];
     const availableIngredients = optionsData?.ingredients || [];
 
-    const handleIngredientChange = (index: number, field: keyof Ingredient, value: string) => {
+    const BASE_API_URI = import.meta.env.VITE_REACT_APP_GRAPHQL_URI;
+
+    const handleIngredientChange = (index: number, field: string, value: string) => {
         const updatedIngredients = [...ingredients];
         updatedIngredients[index] = { ...updatedIngredients[index], [field]: value };
         setIngredients(updatedIngredients);
@@ -61,6 +56,12 @@ const MealForm: React.FC = () => {
         setIngredients([...ingredients, { name: "", measure: "" }]);
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setFile(e.target.files[0]);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -68,23 +69,35 @@ const MealForm: React.FC = () => {
             (ing) => ing.name.trim() !== "" && ing.measure.trim() !== ""
         );
 
-        const meal: IMealInput = {
-            name: name,
+        let imageUrl = "";
+        if (file) {
+            
+            try {
+                console.log('sending image:', file);
+                const { data } = await uploadImage({ variables: { "image": file } });
+                imageUrl = data.uploadImage.filename;
+                console.log('fetched image data', data);
+            } catch (err) {
+                console.error("Error uploading image:", err);
+            }
+        }
+
+        const meal = {
+            name,
             category: newCategory || category,
-            image: image,
             ingredients: validIngredients,
             tags,
             area,
             description,
             youtubeLink,
+            image: imageUrl,
             userId: user?.userId || "",
         };
-        console.log('The user is:', user);
-        console.log("meal: ", meal);
+
         try {
             await addMeal({ variables: { input: meal } });
         } catch (err) {
-            console.error("GraphQL error while submitting meal:", err);
+            console.error("Error adding meal:", err);
         }
     };
 
@@ -96,13 +109,7 @@ const MealForm: React.FC = () => {
             justifyContent="center"
             p={6}
         >
-            <Box
-                w="full"
-                maxW="xl"
-                p={6}
-                borderRadius="md"
-                boxShadow="lg"
-            >
+            <Box w="full" maxW="xl" p={6} borderRadius="md" boxShadow="lg">
                 <VStack spacing={6} as="form" onSubmit={handleSubmit}>
                     <Heading size="lg">Create a New Meal</Heading>
 
@@ -122,7 +129,7 @@ const MealForm: React.FC = () => {
                             placeholder="Select category"
                             value={category}
                             onChange={(e) => setCategory(e.target.value)}
-                            isDisabled={Boolean(newCategory)} // Disable dropdown if new category is being added
+                            isDisabled={Boolean(newCategory)}
                         >
                             {categories.map((cat: string, idx: number) => (
                                 <option key={idx} value={cat}>
@@ -135,7 +142,7 @@ const MealForm: React.FC = () => {
                             placeholder="Or add new category"
                             value={newCategory}
                             onChange={(e) => setNewCategory(e.target.value)}
-                            isDisabled={Boolean(category)} // Disable input if a category is selected
+                            isDisabled={Boolean(category)}
                         />
                     </FormControl>
 
@@ -158,10 +165,8 @@ const MealForm: React.FC = () => {
                                 <Input
                                     placeholder="Or add new ingredient"
                                     value={newIngredient}
-                                    onChange={(e) => {
-                                        handleIngredientChange(index, "name", e.target.value);
-                                        setNewIngredient(e.target.value);
-                                    }}
+                                    onChange={(e) => setNewIngredient(e.target.value)}
+                                    onBlur={() => handleIngredientChange(index, "name", newIngredient)}
                                     isDisabled={Boolean(ingredient.name)}
                                 />
                                 <Input
@@ -206,13 +211,8 @@ const MealForm: React.FC = () => {
                     </FormControl>
 
                     <FormControl>
-                        <FormLabel>Image URL</FormLabel>
-                        <Input
-                            type="text"
-                            placeholder="Enter image URL"
-                            value={image}
-                            onChange={(e) => setImage(e.target.value)}
-                        />
+                        <FormLabel>Upload Image</FormLabel>
+                        <Input type="file" onChange={handleFileChange} />
                     </FormControl>
 
                     <FormControl>
@@ -229,7 +229,7 @@ const MealForm: React.FC = () => {
                         type="submit"
                         colorScheme="blue"
                         w="full"
-                        isDisabled={loading}
+                        isDisabled={loading || loadingOptions}
                     >
                         {loading ? <Spinner size="sm" /> : "Submit Meal"}
                     </Button>

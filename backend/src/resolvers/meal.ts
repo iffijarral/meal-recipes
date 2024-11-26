@@ -1,10 +1,21 @@
+import path from 'path';
+import fs from 'fs';
+import GraphQLUpload from "graphql-upload/GraphQLUpload.mjs";
+import { FileUpload } from "graphql-upload/processRequest.mjs";
+import { Image, IMealInput } from '../interfaces/interfaces.js';
 import { mealService } from '../services/mealService.js';
-import { IMealInput } from '../interfaces/interfaces.js';
 
 
+// Deriving the __dirname equivalent from import.meta.url
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
+// Resolvers
 export const mealResolvers = {
-  Query: {    
+  // Scalar for handling file uploads
+  // Upload: GraphQLUpload,
+
+  // Query resolver to fetch all images
+  Query: {
     meals: async () => {
       try {
         return await mealService.getAllMeals();
@@ -57,8 +68,11 @@ export const mealResolvers = {
         }
       }
     },
+
   },
-  Mutation: {    
+
+  // Mutation resolver to handle file uploads
+  Mutation: {
     addMeal: async (_: any, { input }: { input:IMealInput }) => {
       try {
         return await mealService.createMeal(input);
@@ -72,31 +86,24 @@ export const mealResolvers = {
         }
       }
     },
-    updateMeal: async (_: any, { id, input }: { id: string, input: IMealInput }) => {
+    uploadImage: async (
+      _: unknown,
+      { image }: { image: Promise<FileUpload> } // Arguments with typing
+    ): Promise<Image> => {
+      
       try {
-        return await mealService.updateMeal(id, input);
+        const uploadedImage = await mealService.uploadImage(image);
+        await mealService.generateThumbnail(uploadedImage.filename);
+        return uploadedImage;
       } catch (error) {
         if (error instanceof Error) {
-          console.error('Error during meal update operation:', error.message);
+          console.error('Error during image upload operation:', error.message);
           throw new Error(error.message);
         } else {
           console.error('Unexpected error:', error);
-          throw new Error('Unexpected error during meal update');
+          throw new Error('Unexpected error during image upload');
         }
-      }
-    },
-    deleteMeal: async (_: any, { id }: { id: string }) => {
-      try {
-        return await mealService.deleteMeal(id);
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error('Error during meal deletion operation:', error.message);
-          throw new Error(error.message);
-        } else {
-          console.error('Unexpected error:', error);
-          throw new Error('Unexpected error during meal deletion');
-        }
-      }
-    },
+      }      
+    },    
   },
 };

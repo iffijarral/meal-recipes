@@ -16,9 +16,9 @@ import {
   AlertDescription,
   Spinner
 } from "@chakra-ui/react";
-import { SIGNUP_MUTATION } from "../graphql/mutations";
+import { SIGNUP_MUTATION } from "../graphql/mutations.js";
 import { useMutation } from "@apollo/client";
-import { FormData } from "../interfaces/FormData";
+import { FormData } from "../interfaces/FormData.js";
 
 const sanitizeInput = (value: string) => value.trim();
 const sanitizeEmail = (value: string) => value.trim().toLowerCase();
@@ -51,7 +51,7 @@ const Signup = () => {
     };    
 
     try {
-      const result = await signup({ variables: sanitizedData });
+      const result = signup({ variables: { input: sanitizedData } });
       console.log('Signup result:', result);
     } catch (error) {      
       if (error instanceof Error) {

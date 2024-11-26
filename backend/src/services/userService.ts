@@ -2,16 +2,17 @@
 import { User, IUser } from "../models/User.js";
 import { handleEmailVerification } from "./verificationService.js";
 import { userSchema } from "../validators/userValidator.js";
+import { IUserInput } from "../interfaces/interfaces.js";
 
 export const userService = {
   // Creating a new user
-  createUser: async (userData: Partial<IUser>) => {
-    const { error } = userSchema.validate(userData);
+  createUser: async (input: IUserInput) => {
+    const { error } = userSchema.validate(input); 
     if (error) {
       throw new Error(`Validation failed: ${error.details.map(e => e.message).join(", ")}`);
     }
 
-    const newUser = new User(userData);
+    const newUser = new User({...input});
     await newUser.save();
 
     await handleEmailVerification(newUser.id);

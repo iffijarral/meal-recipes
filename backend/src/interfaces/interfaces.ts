@@ -14,3 +14,16 @@ export interface IMealInput {
     description: string;
     userId: string; // Instead of user, we use userId for input
 }
+
+export interface IUserInput {
+    name: string
+    email: string
+    password: string
+    role: string
+    isActive: boolean
+    isVerified: boolean
+}
+
+export interface Image {  
+    filename: string;
+  }

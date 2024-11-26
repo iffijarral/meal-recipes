@@ -17,7 +17,7 @@ const Template = () => {
 
       <Flex flex="1">
         {/* Sidebar */}
-        <Box as="aside" w="250px" p="4" height="100vh"  borderRightWidth="1px" borderRightColor={borderColor}>
+        <Box as="aside" w="250px" p="4"  borderRightWidth="1px" borderRightColor={borderColor}>
           <nav>
             <Navigation />
           </nav>
