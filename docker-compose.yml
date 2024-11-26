@@ -12,6 +12,8 @@ services:
       - mongodb
     networks:
       - app-network
+    volumes:
+      - ./uploads:/app/uploads
 
   frontend:
     build: ./frontend

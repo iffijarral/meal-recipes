@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { config } from "dotenv";
 import { userService } from "../services/userService.js";
 import { IUser } from "../models/User.js";
+import { IUserInput } from "../interfaces/interfaces.js";
 
 config(); // To access env variables
 
@@ -27,10 +28,9 @@ export const userResolvers = {
   },
 
   Mutation: {
-    signup: async (_: any, { name, email, password, role, isActive, isVerified }: any) => {
-      try {
-        const userData: Partial<IUser> = { name, email, password, role, isActive, isVerified };
-        const newUser = await userService.createUser(userData); 
+    signup: async (_: any, { input }: { input: IUserInput }) => {
+      try {        
+        const newUser = await userService.createUser(input); 
         return newUser;
       } catch (error) { 
         if (error instanceof Error) {

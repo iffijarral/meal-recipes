@@ -1,8 +1,10 @@
 import { gql } from '@apollo/client';
 
+
+
 export const SIGNUP_MUTATION = gql`
-  mutation signup($name: String!, $email: String!, $password: String!, $role: String!, $isActive: Boolean!, $isVerified: Boolean!) {
-    signup(name: $name, email: $email, password: $password, role: $role, isActive: $isActive, isVerified: $isVerified) {
+  mutation signup($input: UserInput!) {
+    signup(input: $input) {
       id
       name
       email
@@ -27,11 +29,18 @@ export const LOGIN_MUTATION = gql`
   }
 `;
 
-
 export const ADD_MEAL_MUTATION = gql`
   mutation AddMeal($input: MealInput!) {
     addMeal(input: $input) {
       name
+    }
+  }
+`;
+
+export const UPLOAD_IMAGE = gql`
+  mutation UploadImage($image: Upload!) {
+    uploadImage(image: $image) {
+      filename
     }
   }
 `;
