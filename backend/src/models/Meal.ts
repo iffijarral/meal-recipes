@@ -1,12 +1,13 @@
 // models/Meal.ts
 import mongoose, { Schema, Document, Types } from 'mongoose'
-import { IUser } from './User.js';
+import { IUserDocument } from './User.js';
 import { IIngredient } from '../interfaces/interfaces.js';
 
 // Ingredient type
 
 
-interface IMeal extends Document {
+interface IMealDocument extends Document {
+  _id: Types.ObjectId;
   name: string;
   category: string;
   ingredients: IIngredient[];
@@ -15,10 +16,10 @@ interface IMeal extends Document {
   youtubeLink?: string;
   image: string;
   description: string;
-  user: Types.ObjectId | IUser;
+  user: Types.ObjectId | IUserDocument;
 }
 
-const mealSchema: Schema<IMeal> = new mongoose.Schema({
+const mealSchema: Schema<IMealDocument> = new mongoose.Schema({
   name: { type: String, required: true },
   category: { type: String, required: true },
   ingredients: [
@@ -35,5 +36,5 @@ const mealSchema: Schema<IMeal> = new mongoose.Schema({
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true }
 });
 
-const Meal = mongoose.model<IMeal>('Meal', mealSchema)
-export { Meal, IMeal }
+const Meal = mongoose.model<IMealDocument>('Meal', mealSchema)
+export { Meal, IMealDocument }

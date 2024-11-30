@@ -1,19 +1,20 @@
-// src/components/MealGrid.tsx
 import { SimpleGrid, Spinner, Text } from '@chakra-ui/react';
-import useMeals from '../hooks/useMeals';
-import MealCard from './MealCard';
-import { Meal } from '../interfaces/Meal';
+import MealCard from './MealCard.js';
+import { IMeal } from '../interfaces/interfaces.js';
+import { useQuery } from '@apollo/client';
+import { GET_MEALS_BY_CATEGORY } from '../graphql/queries.js';
 
 interface Props {
     category: string | undefined;
-    onSelectMeal: (meal: Meal) => void;
+    onSelectMeal: (meal: IMeal) => void;
 }
 
 const MealGrid = ({ category, onSelectMeal }: Props) => {
-    const { meals, error, loading } = useMeals({ category });
+    const { data, error, loading } = useQuery(GET_MEALS_BY_CATEGORY, { variables: { category }, fetchPolicy: 'network-only'})
 
+    const meals: IMeal[] = data?.mealsByCategory || []; 
     if (loading) return <Spinner size="xl" />;
-    if (error) return <Text>Error: {error}</Text>;
+    if (error) return <Text>Error: {error.message}</Text>;
 
     return (
         <SimpleGrid
@@ -21,9 +22,9 @@ const MealGrid = ({ category, onSelectMeal }: Props) => {
             spacing={10}
             padding={10}
         >
-            {meals.map((meal) => (
+            {meals?.map((meal) => (
                 <MealCard
-                    key={meal.idMeal}
+                    key={meal.id}
                     meal={meal}
                     onClick={() => onSelectMeal(meal)} // Pass the meal object on click
                 />

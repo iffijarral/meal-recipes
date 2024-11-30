@@ -1,17 +1,17 @@
 import {useState, useEffect} from 'react'
-import { Meal } from '../interfaces/Meal'
-import { getRequest } from '../services/AxiosClient';
+import { IMeal } from '../interfaces/Meal.js'
+import { getRequest } from '../services/AxiosClient.js';
 
 interface MealResponse {
     count: number;
-    meals: Meal[];
+    meals: IMeal[];
 }
 interface Props {
     category: string | undefined;
 }
 const useMeals = ({category}: Props) => {
 
-    const [meals, setMeals] = useState<Meal[]>([]);
+    const [meals, setMeals] = useState<IMeal[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 

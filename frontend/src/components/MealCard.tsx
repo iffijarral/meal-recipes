@@ -1,9 +1,9 @@
 // src/components/MealCard.tsx
 import { Card, CardBody, Image, Heading, Box } from '@chakra-ui/react';
-import { Meal } from '../interfaces/Meal';
+import { IMeal } from '../interfaces/interfaces.js';
 
 interface Props {
-    meal: Meal;
+    meal: IMeal;
     onClick: () => void;
 }
 
@@ -17,9 +17,9 @@ const MealCard = ({ meal, onClick }: Props) => {
             _hover={{ boxShadow: "lg" }}
             transition="box-shadow 0.2s"
         >
-            <Image src={meal.strMealThumb} alt={`${meal.strMeal} - ${meal.idMeal}`} />
+            <Image src={`/uploads/${meal.image}`} alt={`${meal.name} - ${meal.id}`} />
             <CardBody>
-                <Heading textAlign="center" fontSize="2xl">{meal.strMeal}</Heading>
+                <Heading textAlign="center" fontSize="2xl">{meal.name}</Heading>
             </CardBody>
         </Card>
     );

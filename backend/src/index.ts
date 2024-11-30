@@ -6,14 +6,18 @@ const PORT = process.env.PORT || 4000;
 
 const startServer = async () => {
   try {
-    const app = await createServer();
+    const { app, httpServer } = await createServer();
 
     // More routes
-    app.get('/api/verify-email', limiter, verifyEmail);
-    
-    
+    app.get('/api/verify-email', limiter, verifyEmail);    
+
+    // Fallback route
+    app.use((req, res) => {
+      res.status(404).send({ error: "Endpoint not found." });
+    });
+
     // Start the Express server
-    app.listen(PORT, () => {
+    httpServer.listen(PORT, () => {
       console.log(`Server is running on port: ${PORT}`);
     });
   } catch (error) {

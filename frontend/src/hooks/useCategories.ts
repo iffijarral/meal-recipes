@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react'
-import { Category } from '../interfaces/Category'
-import { getRequest } from '../services/AxiosClient';
+import { Category } from '../interfaces/Category.js'
+import { getRequest } from '../services/AxiosClient.js';
 
 interface CategoryResponse {
     count: number;

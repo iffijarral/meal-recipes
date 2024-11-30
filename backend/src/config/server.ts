@@ -57,7 +57,7 @@ const createServer = async () => {
 
   // Apply Apollo middleware
   app.use(
-    "/",
+    "/api/graphql",
     cors<Request>(), // Add generic typing to `cors` if needed
     bodyParser.json(),
     graphqlUploadExpress(), // Middleware for file uploads
@@ -70,14 +70,9 @@ const createServer = async () => {
 
   // Serve static files (e.g., uploaded images)
   const uploadsPath = path.join(process.cwd(), 'uploads');
-  app.use('/uploads', express.static(uploadsPath));
+  app.use('/uploads', express.static(uploadsPath));  
 
-  // Fallback route
-  app.use((req, res) => {
-    res.status(404).send({ error: "Endpoint not found." });
-  });
-
-  return app;
+  return { app, httpServer };
 };
 
 export default createServer;

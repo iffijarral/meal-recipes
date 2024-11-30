@@ -30,8 +30,7 @@ const MealForm: React.FC = () => {
     const [area, setArea] = useState("");
     const [description, setDescription] = useState("");
     const [file, setFile] = useState<File | null>(null);
-    const [youtubeLink, setYoutubeLink] = useState("");
-    const [newIngredient, setNewIngredient] = useState("");
+    const [youtubeLink, setYoutubeLink] = useState("");    
 
     const { user } = useContext(AuthContext)!;
 
@@ -43,7 +42,7 @@ const MealForm: React.FC = () => {
 
     const categories = optionsData?.categories || [];
     const availableIngredients = optionsData?.ingredients || [];
-
+    console.log('categories', categories);
     const BASE_API_URI = import.meta.env.VITE_REACT_APP_GRAPHQL_URI;
 
     const handleIngredientChange = (index: number, field: string, value: string) => {
@@ -62,6 +61,18 @@ const MealForm: React.FC = () => {
         }
     };
 
+    const resetForm = () => {
+        setName("");
+        setCategory("");
+        setNewCategory("");
+        setIngredients([{ name: "", measure: "" }]);
+        setTags([]);
+        setArea("");
+        setDescription("");
+        setFile(null);
+        setYoutubeLink("");
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -71,7 +82,7 @@ const MealForm: React.FC = () => {
 
         let imageUrl = "";
         if (file) {
-            
+
             try {
                 console.log('sending image:', file);
                 const { data } = await uploadImage({ variables: { "image": file } });
@@ -96,6 +107,7 @@ const MealForm: React.FC = () => {
 
         try {
             await addMeal({ variables: { input: meal } });
+            resetForm() // Reset the form after successful submission
         } catch (err) {
             console.error("Error adding meal:", err);
         }
@@ -123,7 +135,7 @@ const MealForm: React.FC = () => {
                         />
                     </FormControl>
 
-                    <FormControl>
+                    <FormControl isRequired>
                         <FormLabel>Category</FormLabel>
                         <Select
                             placeholder="Select category"
@@ -154,7 +166,6 @@ const MealForm: React.FC = () => {
                                     placeholder="Select ingredient"
                                     value={ingredient.name}
                                     onChange={(e) => handleIngredientChange(index, "name", e.target.value)}
-                                    isDisabled={Boolean(newIngredient)}
                                 >
                                     {availableIngredients.map((ing: string, idx: number) => (
                                         <option key={idx} value={ing}>
@@ -164,10 +175,8 @@ const MealForm: React.FC = () => {
                                 </Select>
                                 <Input
                                     placeholder="Or add new ingredient"
-                                    value={newIngredient}
-                                    onChange={(e) => setNewIngredient(e.target.value)}
-                                    onBlur={() => handleIngredientChange(index, "name", newIngredient)}
-                                    isDisabled={Boolean(ingredient.name)}
+                                    value={ingredient.name}
+                                    onChange={(e) => handleIngredientChange(index, "name", e.target.value)}
                                 />
                                 <Input
                                     placeholder="Measure"
@@ -191,7 +200,7 @@ const MealForm: React.FC = () => {
                         />
                     </FormControl>
 
-                    <FormControl>
+                    <FormControl isRequired>
                         <FormLabel>Area</FormLabel>
                         <Input
                             type="text"
@@ -210,12 +219,12 @@ const MealForm: React.FC = () => {
                         />
                     </FormControl>
 
-                    <FormControl>
+                    <FormControl isRequired>
                         <FormLabel>Upload Image</FormLabel>
                         <Input type="file" onChange={handleFileChange} />
                     </FormControl>
 
-                    <FormControl>
+                    <FormControl isRequired>
                         <FormLabel>YouTube Link</FormLabel>
                         <Input
                             type="text"

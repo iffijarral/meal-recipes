@@ -18,29 +18,29 @@ const httpLink = createUploadLink({
   uri: BASE_API_URI, // Dynamically read from environment variables
 });
 
-const logLink = new ApolloLink((operation, forward) => {
-  console.log(`Starting request for ${operation.operationName}`);
-  console.log('Variables:', operation.variables);
-  return forward(operation).map((response) => {
-    console.log(`Completed request for ${operation.operationName}`);
-    console.log('Response:', response);
-    return response;
-  });
-});
+// const logLink = new ApolloLink((operation, forward) => {
+//   console.log(`Starting request for ${operation.operationName}`);
+//   console.log('Variables:', operation.variables);
+//   return forward(operation).map((response) => {
+//     console.log(`Completed request for ${operation.operationName}`);
+//     console.log('Response:', response);
+//     return response;
+//   });
+// });
 
-const errorLink = onError(({ graphQLErrors, networkError }) => {
-  if (graphQLErrors) {
-    graphQLErrors.forEach(({ message, locations, path }) => {
-      console.error(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`);
-    });
-  }
-  if (networkError) console.error(`[Network error]: ${networkError}`);
-});
+// const errorLink = onError(({ graphQLErrors, networkError }) => {
+//   if (graphQLErrors) {
+//     graphQLErrors.forEach(({ message, locations, path }) => {
+//       console.error(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`);
+//     });
+//   }
+//   if (networkError) console.error(`[Network error]: ${networkError}`);
+// });
 
-const link = ApolloLink.from([logLink, errorLink, httpLink]);
+// const link = ApolloLink.from([logLink, errorLink, httpLink]);
 
 const client = new ApolloClient({
-  link,
+  link: httpLink,
   cache: new InMemoryCache(),
 });
 

@@ -15,6 +15,16 @@ type Ingredient {
   measure: String
 }
 
+type Category {
+  idCategory: String
+  strCategory: String!
+  strCategoryThumb: String 
+}
+
+type Area {
+  strArea: String!
+}
+
 type Meal {
   id: ID
   name: String!
@@ -53,9 +63,11 @@ type Query {
   user(id: ID!): User
   users(limit: Int, offset: Int): [User!]!
   meals: [Meal!]!
-  meal(id: ID!): Meal
-  categories: [String!]!
-  ingredients: [String!]!  
+  mealById(id: ID!): Meal
+  mealsByCategory(category: String!): [Meal!]!
+  categories: [Category!]!
+  ingredients: [String!]!
+  areas: [Area!]!  
 }
 
 type Mutation {
