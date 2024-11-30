@@ -1,10 +1,12 @@
 import { FileUpload } from "graphql-upload/processRequest.mjs";
 import path from 'path';
 import fs from 'fs';
-import { Meal } from "../models/Meal.js";
-import { Image, IMealInput } from "../interfaces/interfaces.js";
+import { IMealDocument, Meal } from "../models/Meal.js";
+import { Image, IMeal, IMealInput, IUser } from "../interfaces/interfaces.js";
 import { mealSchema } from "../validators/mealValidator.js";
 import sharp from "sharp";
+import { IUserDocument } from "../models/User.js";
+import { ObjectId } from "mongoose";
 
 export const mealService = {
   // Creating a new meal
@@ -48,33 +50,137 @@ export const mealService = {
 
   // Fetch meal by ID
   getMealById: async (id: string) => {
-    const meal = await Meal.findById(id).populate('user');
-    if (!meal) {
-      throw new Error("Meal not found");
+    try {
+      const meal = await Meal.findById(id).populate('user');
+      if (!meal) {
+        throw new Error("Meal not found");
+      }
+
+      // Transform ingredients to remove _id if you don't need it
+      const ingredients = meal.ingredients.map(ingredient => ({
+        name: ingredient.name,
+        measure: ingredient.measure
+      }));
+
+      // Check if meal.user is populated
+      const user = transformUser(meal.user as IUserDocument);
+
+      // if(user) console.log('the user in meal is', user);
+
+      // Return the meal object as is because populate includes the user data
+      return {
+        id: meal._id.toString(),
+        name: meal.name,
+        category: meal.category,
+        ingredients: ingredients,
+        tags: meal.tags,
+        area: meal.area,
+        youtubeLink: meal.youtubeLink,
+        image: meal.image,
+        description: meal.description,
+        user: user
+      }
+    } catch (error) {
+      console.error("Error fetching meals by Id:", error);
+      throw new Error("Failed to fetch meals by Id");
     }
-    return meal;
+  },
+
+  // Fetch meal by ID
+  getMealsByCategory: async (category: string) => {
+    try {
+      const meals = await Meal.find({ category }).populate('user');
+      if (meals.length === 0) {
+        throw new Error(`No meals found for category: ${category}`);
+      }
+      return meals.map((meal) => {
+        const user = transformUser(meal.user as IUserDocument);
+        return {
+          id: meal._id.toString(),
+          name: meal.name,
+          category: meal.category,
+          ingredients: meal.ingredients,
+          tags: meal.tags,
+          area: meal.area,
+          youtubeLink: meal.youtubeLink,
+          image: meal.image,
+          description: meal.description,
+          user
+        }
+      })
+    } catch (error) {
+      console.error("Error fetching meals by Category:", error);
+      throw new Error("Failed to fetch meals");
+    }
+    
   },
 
   // Fetch all meals
   getAllMeals: async () => {
-    return await Meal.find({}).populate('user');
-  },
+    try {
+      const meals = await Meal.find({}).populate('user');
 
-  // Fetch meals by category
-  getMealsByCategory: async (category: string) => {
-    return await Meal.find({ category }).populate('user');
+      return meals.map((meal) => {
+        const user = transformUser(meal.user as IUserDocument);
+        return {
+          id: meal._id.toString(),
+          name: meal.name,
+          category: meal.category,
+          ingredients: meal.ingredients,
+          tags: meal.tags,
+          area: meal.area,
+          youtubeLink: meal.youtubeLink,
+          image: meal.image,
+          description: meal.description,
+          user
+        }
+      })
+
+
+    } catch (error) {
+      console.error("Error fetching meals:", error);
+      throw new Error("Failed to fetch meals");
+    }
   },
 
   // Fetch distinct categories
   getDistinctCategories: async () => {
-    const categories = await Meal.distinct('category');
-    return categories;
+    try {
+      // Fetch unique categories from the 'meals' collection
+      const distinctCategories = await Meal.distinct('category');
+
+      // Transform categories into the desired structure
+      return distinctCategories.map((category, index) => ({
+        idCategory: index.toString(), // Generated an ID as a string, though i don't need it at frontend
+        strCategory: category,       // Used the category name
+        strCategoryThumb: "",        // Placeholder for thumbnail. 
+      }));
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      throw new Error("Failed to fetch categories");
+    }
   },
 
   // Fetch distinct ingredients
   getDistinctIngredients: async () => {
     const ingredients = await Meal.distinct('ingredients.name');
     return ingredients;
+  },
+
+  // Fetch distinct area
+  getDistinctAreas: async () => {
+    try {
+      // Fetch unique categories from the 'meals' collection
+      const distinctAreas = await Meal.distinct('area');
+
+      // Transform categories into the desired structure
+      return distinctAreas.map((area, index) => ({
+        strArea: area,
+      }));
+    } catch (error) {
+      console.error("Error fetching areas:", error);
+      throw new Error("Failed to fetch areas");
+    }
   },
 
   uploadImage: async (image: Promise<FileUpload>) => {
@@ -153,3 +259,19 @@ export const mealService = {
   }
 
 };
+
+// Helper function to check if user is a populated document
+const isIUserDocument = (user: IUserDocument | ObjectId): user is IUserDocument => {
+  return (user as IUserDocument)._id !== undefined; // Check if _id exists, meaning it is a populated user
+};
+
+const transformUser = (user: IUserDocument): IUser => ({
+  id: user._id.toString(),
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  isActive: user.isActive,
+  isVerified: user.isVerified,
+  createdAt: user.createdAt,
+  updatedAt: user.updatedAt,
+});

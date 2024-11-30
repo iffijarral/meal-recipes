@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import GraphQLUpload from "graphql-upload/GraphQLUpload.mjs";
 import { FileUpload } from "graphql-upload/processRequest.mjs";
-import { Image, IMealInput } from '../interfaces/interfaces.js';
+import { IArea, ICategory, Image, IMeal, IMealInput } from '../interfaces/interfaces.js';
 import { mealService } from '../services/mealService.js';
 
 
@@ -29,7 +29,7 @@ export const mealResolvers = {
         }        
       }
     },
-    meal: async (_: any, { id }: { id: string }) => {
+    mealById: async (_: any, { id }: { id: string }): Promise<IMeal | null > => {
       try {
         return await mealService.getMealById(id);
       } catch (error) {
@@ -42,7 +42,20 @@ export const mealResolvers = {
         }
       }
     },
-    categories: async () => {
+    mealsByCategory: async (_: any, { category }: { category: string }): Promise<IMeal[] | null > => {
+      try {
+        return await mealService.getMealsByCategory(category);
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error('Error during meal fetch operation:', error.message);
+          throw new Error(error.message);
+        } else {
+          console.error('Unexpected error:', error);
+          throw new Error('Unexpected error during meal fetch');
+        }
+      }
+    },
+    categories: async (): Promise<ICategory[]> => {
       try {
         return await mealService.getDistinctCategories();
       } catch (error) {
@@ -52,6 +65,19 @@ export const mealResolvers = {
         } else {
           console.error('Unexpected error:', error);
           throw new Error('Unexpected error during categories fetch');
+        }
+      }
+    },
+    areas: async (): Promise<IArea[]> => {
+      try {
+        return await mealService.getDistinctAreas();
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error('Error during areas fetch operation:', error.message);
+          throw new Error(error.message);
+        } else {
+          console.error('Unexpected error:', error);
+          throw new Error('Unexpected error during areas fetch');
         }
       }
     },
@@ -83,6 +109,32 @@ export const mealResolvers = {
         } else {
           console.error('Unexpected error:', error);
           throw new Error('Unexpected error during meal creation');
+        }
+      }
+    },
+    updateMeal: async (_: any, { id, input }: { id: string, input: IMealInput }) => {
+      try {
+        return await mealService.updateMeal(id, input);
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error('Error during meal update operation:', error.message);
+          throw new Error(error.message);
+        } else {
+          console.error('Unexpected error:', error);
+          throw new Error('Unexpected error during meal update');
+        }
+      }
+    },
+    deleteMeal: async (_: any, { id }: { id: string }) => {
+      try {
+        return await mealService.deleteMeal(id);
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error('Error during meal deletion operation:', error.message);
+          throw new Error(error.message);
+        } else {
+          console.error('Unexpected error:', error);
+          throw new Error('Unexpected error during meal deletion');
         }
       }
     },

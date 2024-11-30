@@ -6,10 +6,13 @@ import {
     List,
     ListItem,
     Spinner,
+    Text,
   } from "@chakra-ui/react";
   import { useState } from "react";
-  import { Area } from "../interfaces/Area";
-  import useAreas from "../hooks/useAreas";
+  import { Area } from "../interfaces/Area.js";
+  import useAreas from "../hooks/useAreas.js";
+import { useQuery } from "@apollo/client";
+import { GET_AREAS } from "../graphql/queries.js";
   
   interface Props {
     onSelectArea: (area: Area) => void;
@@ -19,11 +22,15 @@ import {
   const AreaListAside = ({ onSelectArea, selectedArea }: Props) => {
     const [isExpanded, setIsExpanded] = useState(false);
   
-    const { areas, error, loading } = useAreas();
-    
-    const displayedAreas = isExpanded ? areas : areas?.slice(0, 5);
+    const { data, error, loading } = useQuery(GET_AREAS, {
+      fetchPolicy: "network-only",
+    });
+        
+    const displayedAreas: Area[] = isExpanded
+    ? data?.areas || []
+    : data?.areas?.slice(0, 5) || [];
   
-    if (error) return null;
+    if (error) return <Text> { error.message } </Text>;
   
     if (loading) return <Spinner />;
   
@@ -32,20 +39,20 @@ import {
         <Box paddingTop={10}>
           <Heading fontSize="xl">Areas</Heading>
           <List>
-            {displayedAreas.map((Area) => (
-              <ListItem key={Area.strArea} paddingY="5px">
+            {displayedAreas && displayedAreas.map((area: Area, index) => (
+              <ListItem key={index} paddingY="5px">
                 <HStack>
                   <Button
                     variant="link"
                     fontSize="medium"
-                    onClick={() => onSelectArea(Area)}
+                    onClick={() => onSelectArea(area)}
                     colorScheme={
-                      selectedArea?.strArea === Area.strArea
+                      selectedArea?.strArea === area.strArea
                         ? "yellow"
                         : "white"
                     }
                   >
-                    {Area.strArea}
+                    {area.strArea}
                   </Button>
                 </HStack>
               </ListItem>

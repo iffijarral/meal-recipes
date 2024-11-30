@@ -13,7 +13,7 @@ services:
     networks:
       - app-network
     volumes:
-      - ./uploads:/app/uploads
+      - uploads:/app/uploads
 
   frontend:
     build: ./frontend
@@ -24,6 +24,8 @@ services:
       - backend         # Ensure backend is running before frontend
     env_file:
       - .env
+    volumes:
+      - uploads:/app/uploads
     networks:
       - app-network
 
@@ -37,9 +39,11 @@ services:
     networks:
       - app-network
   nginx:
-    image: nginx:stable-alpine                                                                                                                            
+    image: nginx:stable-alpine
+    container_name: nginx                                                                                                                            
     volumes:                                                                                                                                              
-      - ./nginx-config:/etc/nginx/conf.d                                                                                                                  
+      - ./nginx-config:/etc/nginx/conf.d
+      - uploads:/app/uploads                                                                                                                    
     ports:                                                                                                                                                
       - 80:80
     networks:
@@ -50,6 +54,7 @@ services:
 
 volumes:
   mongo-data:
+  uploads:
 networks:
   app-network:
     driver: bridge

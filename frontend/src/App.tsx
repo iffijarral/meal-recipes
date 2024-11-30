@@ -1,19 +1,20 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import AdminDashboard from "./admin/AdminDashboard";
-import NotFound from "./pages/NotFound";
-import VerifyEmailSuccess from "./pages/VerifyEmailSuccess";
-import VerifyEmailFailed from "./pages/VerifyEmailFailed";
-import { AuthProvider } from "./context/AuthContext";
-import PrivateRoute from "./components/PrivateRoute";
-import AuthRedirect from "./components/AuthRedirect";
-import Logout from "./components/Logout";
-import Template from "./admin/components/Template";
-import AdminHome from "./admin/pages/AdminHome";
-import Meals from "./admin/pages/Meals";
+import Home from "./pages/Home.js";
+import Login from "./pages/Login.js";
+import Signup from "./pages/Signup.js";
+import NotFound from "./pages/NotFound.js";
+import VerifyEmailSuccess from "./pages/VerifyEmailSuccess.js";
+import VerifyEmailFailed from "./pages/VerifyEmailFailed.js";
+import { AuthProvider } from "./context/AuthContext.js";
+import PrivateRoute from "./components/PrivateRoute.js";
+import AuthRedirect from "./components/AuthRedirect.js";
+import Logout from "./components/Logout.js";
+import Template from "./admin/components/Template.js";
+import AdminHome from "./admin/pages/AdminHome.js";
+import Meals from "./admin/pages/Meals.js";
+import MealForm from "./admin/components/MealForm.js";
+import Test from "./pages/Test.js";
 
 
 
@@ -46,7 +47,7 @@ const App: React.FC = () => (
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Template />}>
             <Route index element={<AdminHome />} /> 
-            <Route path="meals" element={<Meals />} />
+            <Route path="meals" element={<MealForm />} />
           </Route>
         </Route>
 

@@ -15,8 +15,7 @@ export const verifyEmail = async (req: Request, res: Response): Promise<void> =>
       // Call the verification service to verify the token
       await verifyToken(token as string);
 
-  
-      res.status(200).json({ message: 'Email successfully verified' });
+      res.redirect(`${process.env.VITE_BASE_URL}verify-email-success`);
     } catch (error) {
       console.error('Email verification failed:', error);
       // res.status(400).json({ message: 'Invalid or expired token' });

@@ -1,34 +1,33 @@
-// src/components/MealDetails.tsx
 import { Box, Button, Heading, Text, Image, List, ListItem, Link, Flex } from "@chakra-ui/react";
-import { MealDetail } from "../interfaces/MealDetail";
+import { IMeal } from "../interfaces/interfaces.js";
 
 interface Props {
-    meal: MealDetail | null;
+    meal: IMeal | null;
     onClose: () => void;
 }
 
 const MealDetails = ({ meal, onClose }: Props) => {
     if (!meal) return <Text>No meal details available.</Text>;
-
+    console.log('meal object', meal);
     return (
         <Box p={5}>
             <Button onClick={onClose} mb={4}>Back</Button>
             
             <Flex direction={{ base: "column", md: "row" }} gap={2} alignItems="start">
                 <Box flex="1">
-                    <Heading mt={4}>{meal.strMeal}</Heading>
-                    <Text mt={2}><strong>Category:</strong> {meal.strCategory}</Text>
-                    <Text mt={2}><strong>Area:</strong> {meal.strArea}</Text>
+                    <Heading mt={4}>{meal.name}</Heading>
+                    <Text mt={2}><strong>Category:</strong> {meal.category}</Text>
+                    <Text mt={2}><strong>Area:</strong> {meal.area}</Text>
                     <Text mt={4}><strong>Instructions:</strong></Text>
-                    <Text mt={2}>{meal.strInstructions}</Text>
+                    <Text mt={2}>{meal.description}</Text>
 
-                    {meal.strTags && (
-                        <Text mt={2}><strong>Tags:</strong> {meal.strTags}</Text>
+                    {meal.tags && (
+                        <Text mt={2}><strong>Tags:</strong> {meal.tags}</Text>
                     )}
 
-                    {meal.strYoutube && (
+                    {meal.youtubeLink && (
                         <Text mt={2}>
-                            <Link href={meal.strYoutube} color="teal.500" isExternal>
+                            <Link href={meal.youtubeLink} color="teal.500" isExternal>
                                 Watch on YouTube
                             </Link>
                         </Text>
@@ -48,8 +47,8 @@ const MealDetails = ({ meal, onClose }: Props) => {
                     )}
                 </Box>
                 <Image 
-                     src={meal.strMealThumb} 
-                     alt={meal.strMeal} 
+                     src={`/uploads/${meal.image}`} 
+                     alt={meal.name} 
                      borderRadius="lg" 
                      ml={{ base: 0, md: 4 }} // margin-left on medium screens
                      mt={{ base: 4, md: 0 }} // margin-top for small screens

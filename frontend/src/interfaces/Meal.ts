@@ -1,13 +1,7 @@
-import { Ingredient } from "./Ingredient";
-import { IUser } from "./User";
+import { Ingredient } from "./Ingredient.js";
+import { IUser } from "./User.js";
 
-export interface Meal {
-    idMeal: string;
-    strMeal: string;
-    strMealThumb: string;    
-}
-
-export interface IMeal {
+export interface IMealDetails {
     id?: string;
     name: string;
     category: string;

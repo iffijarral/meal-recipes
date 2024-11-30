@@ -8,8 +8,9 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { Category } from "../interfaces/Category";
-import useCategories from "../hooks/useCategories";
+import { Category } from "../interfaces/Category.js";
+import { useQuery } from "@apollo/client";
+import { GET_CATEGORIES } from "../graphql/queries.js";
 
 interface Props {
   onSelectCategory: (category: Category) => void;
@@ -19,9 +20,11 @@ interface Props {
 const CategoryListAside = ({ onSelectCategory, selectedCategory }: Props) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const { categories, error, loading } = useCategories();
+  const { data, error, loading } = useQuery(GET_CATEGORIES, {fetchPolicy: 'network-only'});    
 
-  const displayedCategorys = isExpanded ? categories : categories?.slice(0, 5);
+  const displayedCategorys: Category[] = isExpanded
+  ? data?.categories || []
+  : data?.categories.slice(0, 5) || [];
 
   if (error) return null;
 
@@ -32,20 +35,20 @@ const CategoryListAside = ({ onSelectCategory, selectedCategory }: Props) => {
       <Box paddingTop={10}>
         <Heading fontSize="xl">Categories</Heading>
         <List>
-          {displayedCategorys.map((Category) => (
-            <ListItem key={Category.idCategory} paddingY="5px">
+          {displayedCategorys && displayedCategorys.map((category: Category) => (
+            <ListItem key={category.idCategory} paddingY="5px">
               <HStack>
                 <Button
                   variant="link"
                   fontSize="medium"
-                  onClick={() => onSelectCategory(Category)}
+                  onClick={() => onSelectCategory(category)}
                   colorScheme={
-                    selectedCategory?.idCategory === Category.idCategory
+                    selectedCategory?.idCategory === category.idCategory
                       ? "yellow"
                       : "white"
                   }
                 >
-                  {Category.strCategory}
+                  {category.strCategory}
                 </Button>
               </HStack>
             </ListItem>

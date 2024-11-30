@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { Verification, IVerification } from '../models/verification.js';
-import { User, IUser } from '../models/User.js';
+import { User, IUserDocument } from '../models/User.js';
 import { generateToken } from '../utils/tokenGenerator.js';
 import { sendVerificationEmail } from '../utils/sendEmail.js';
 
@@ -20,7 +20,7 @@ export const verifyToken = async (token: string) => {
   if (!verification || verification.verificationTokenExpires.getTime() < Date.now()) {
     throw new Error('Token is invalid or has expired');
   }
-  const user: IUser | null = await User.findById(verification.userId);
+  const user: IUserDocument | null = await User.findById(verification.userId);
   if (user) {
     user.isVerified = true;
     user.isActive = true;

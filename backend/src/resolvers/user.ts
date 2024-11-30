@@ -2,7 +2,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { config } from "dotenv";
 import { userService } from "../services/userService.js";
-import { IUser } from "../models/User.js";
 import { IUserInput } from "../interfaces/interfaces.js";
 
 config(); // To access env variables

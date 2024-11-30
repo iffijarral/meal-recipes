@@ -2,7 +2,7 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import { Box, Flex, useColorModeValue } from "@chakra-ui/react"; // Use Chakra UI for styling
 import { Link } from "react-router-dom";
-import Navigation from "./Navigation";
+import Navigation from "./Navigation.js";
 
 const Template = () => {
   const borderColor = useColorModeValue("gray.200", "gray.600");
@@ -17,7 +17,7 @@ const Template = () => {
 
       <Flex flex="1">
         {/* Sidebar */}
-        <Box as="aside" w="250px" p="4"  borderRightWidth="1px" borderRightColor={borderColor}>
+        <Box as="aside" w="250px" p={4}  borderRightWidth="1px" borderRightColor={borderColor}>
           <nav>
             <Navigation />
           </nav>

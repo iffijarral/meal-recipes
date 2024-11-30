@@ -1,5 +1,5 @@
 // src/services/user.service.ts
-import { User, IUser } from "../models/User.js";
+import { User } from "../models/User.js";
 import { handleEmailVerification } from "./verificationService.js";
 import { userSchema } from "../validators/userValidator.js";
 import { IUserInput } from "../interfaces/interfaces.js";
