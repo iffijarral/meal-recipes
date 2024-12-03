@@ -1,8 +1,6 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import { config } from "dotenv";
 import { userService } from "../services/userService.js";
-import { IUserInput } from "../interfaces/interfaces.js";
+import { ILoginInput, IUserInput } from "../interfaces/interfaces.js";
 
 config(); // To access env variables
 
@@ -41,26 +39,9 @@ export const userResolvers = {
       }
     }, 
 
-    login: async (_: any, { email, password }: any) => {
+    login: async (_: any, { input }: { input: ILoginInput }) => {
       try {
-        const user = await userService.getUserByEmail(email); // Fetch user by email through service
-        if (!user) {
-          throw new Error("User not found");
-        }
-
-        // Validate password
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-          throw new Error("Invalid credentials");
-        }
-        if (!user.isVerified) {
-          throw new Error("User is not verified");
-        }
-
-        // Generate JWT
-        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: "1h" });
-
-        return { token, user };
+        return await userService.authenticate(input);
       } catch (error) {
         if (error instanceof Error) {
           console.error('Login error:', error.message);

@@ -15,6 +15,7 @@ import AdminHome from "./admin/pages/AdminHome.js";
 import Meals from "./admin/pages/Meals.js";
 import MealForm from "./admin/components/MealForm.js";
 import Test from "./pages/Test.js";
+import MainLayout from "./components/MainLayout.js";
 
 
 
@@ -23,6 +24,9 @@ const App: React.FC = () => (
     <Router>
       <Routes>
         {/* Public Routes */}
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<Home />} /> {/* Default child */}          
+        </Route>
         <Route path="/" element={<Home />} />
         <Route
           path="/login"
@@ -46,7 +50,7 @@ const App: React.FC = () => (
         {/* Protected Routes */}
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Template />}>
-            <Route index element={<AdminHome />} /> 
+            <Route index element={<AdminHome />} />
             <Route path="meals" element={<MealForm />} />
           </Route>
         </Route>

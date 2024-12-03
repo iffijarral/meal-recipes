@@ -7,8 +7,7 @@ interface Props {
 }
 
 const MealDetails = ({ meal, onClose }: Props) => {
-    if (!meal) return <Text>No meal details available.</Text>;
-    console.log('meal object', meal);
+    if (!meal) return <Text>No meal details available.</Text>;    
     return (
         <Box p={5}>
             <Button onClick={onClose} mb={4}>Back</Button>

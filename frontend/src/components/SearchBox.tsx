@@ -1,22 +1,70 @@
-import { Button, Input, InputGroup, InputRightElement } from '@chakra-ui/react';
-import React from 'react';
+import { Button, FormControl, FormErrorMessage, Input, InputGroup, InputRightElement, VStack } from '@chakra-ui/react';
+import React, { useState } from 'react';
+import { searchSchema } from '../schemas/searchSchema.js';
 
-const SearchBox = () => {
-    const [show, setShow] = React.useState(false)
-    const handleClick = () => setShow(!show)
-  
-    return (
-      <InputGroup size='md' width="50%">
-        <Input
-          pr='4.5rem'          
-          placeholder='Search Meal'
-        />
-        <InputRightElement width='4.5rem'>
-          <Button h='1.75rem' size='sm' mr='5px' onClick={handleClick}>
-            Search
-          </Button>
-        </InputRightElement>
-      </InputGroup>
-    )
-  }
-  export default SearchBox;
+
+interface SearchProps {
+  onSearch: (query: string) => void;
+}
+
+interface searchInput {
+  name: string | '';
+}
+
+const SearchBox = ({ onSearch }: SearchProps) => {
+  const [show, setShow] = React.useState(false)
+  const [searchInput, setSearchInput] = useState<string>('');
+  const [inputError, setInputError] = useState("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchInput(e.target.value);
+    setInputError(""); // Reset error when user starts typing
+  };
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validate the search input using Joi schema
+    const { error } = searchSchema.validate({ query: searchInput });
+
+    if (error) {
+      // If validation fails, set the error message
+      setInputError(error.details[0].message);
+      return;
+    }
+
+    // Clear previous errors and proceed with the search
+    setInputError("");
+    onSearch(searchInput); // Send search input to parent
+    setSearchInput("");
+  };  
+
+  return (
+    <VStack as="form" onSubmit={handleSubmit} spacing={4} width="50%" alignItems="stretch">
+      <FormControl isInvalid={inputError.length > 0}>
+        <InputGroup size="md">
+          <Input
+            pr="4.5rem"
+            name="query"
+            placeholder="Search Meal"
+            value={searchInput}
+            onChange={handleChange}
+            focusBorderColor="blue.500"
+          />
+          <InputRightElement width="4.5rem">
+            <Button h="1.75rem" size="sm" mr="5px" type="submit">
+              Search
+            </Button>
+          </InputRightElement>
+        </InputGroup>
+        {inputError.length > 0 && (
+          <FormErrorMessage>                        
+              <div>{inputError}</div>            
+          </FormErrorMessage>
+        )}
+      </FormControl>
+    </VStack>
+  )
+}
+export default SearchBox;

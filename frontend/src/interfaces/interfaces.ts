@@ -1,7 +1,16 @@
+export interface IArea {
+    strArea: string;
+}
 export interface IIngredient {
     name: string;
     measure: string;
 }
+export interface ICategory {
+    idCategory?: string;
+    strCategory: string;
+    strCategoryThumb?: string;    
+}
+
 export interface IUser {
     id: string; // Transformed from `_id`
     name: string;
@@ -34,4 +43,9 @@ export interface IMealInput {
     image: string;
     description: string;
     userId: string; // Instead of user, we use userId for input
+}
+export interface IFormData {
+    name?: string;
+    email: string;
+    password: string;    
 }

@@ -42,6 +42,19 @@ export const mealResolvers = {
         }
       }
     },
+    mealByName: async (_: any, { name }: { name: string }): Promise<IMeal | null > => {
+      try {
+        return await mealService.getMealByName(name);
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error('Error during meal fetch operation:', error.message);
+          throw new Error(error.message);
+        } else {
+          console.error('Unexpected error:', error);
+          throw new Error('Unexpected error during meal fetch');
+        }
+      }
+    },
     mealsByCategory: async (_: any, { category }: { category: string }): Promise<IMeal[] | null > => {
       try {
         return await mealService.getMealsByCategory(category);

@@ -22,6 +22,11 @@ input UserInput {
   isVerified: Boolean!
 }
 
+input LoginInput {
+  email: String!      # Email is required
+  password: String!   # Password is required
+}
+
 extend type Query {
   user(id: ID!): User
   users(limit: Int, offset: Int): [User!]!
@@ -30,8 +35,5 @@ extend type Query {
 extend type Mutation {
   signup(input: UserInput!): User
 
-  login(
-    email: String!
-    password: String!
-  ): AuthPayload!
+  login(input: LoginInput!): AuthPayload!
 }

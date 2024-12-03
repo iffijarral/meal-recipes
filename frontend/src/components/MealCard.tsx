@@ -1,18 +1,17 @@
-// src/components/MealCard.tsx
-import { Card, CardBody, Image, Heading, Box } from '@chakra-ui/react';
-import { IMeal } from '../interfaces/interfaces.js';
+import { Card, CardBody, Image, Heading } from "@chakra-ui/react";
+import { IMeal } from "../interfaces/interfaces.js";
 
 interface Props {
     meal: IMeal;
-    onClick: () => void;
+    onClick: () => void; // Handle meal selection
 }
 
 const MealCard = ({ meal, onClick }: Props) => {
     return (
-        <Card 
-            borderRadius="10" 
-            overflow="hidden" 
-            onClick={onClick} 
+        <Card
+            borderRadius="10"
+            overflow="hidden"
+            onClick={onClick}
             cursor="pointer"
             _hover={{ boxShadow: "lg" }}
             transition="box-shadow 0.2s"
@@ -23,6 +22,6 @@ const MealCard = ({ meal, onClick }: Props) => {
             </CardBody>
         </Card>
     );
-}
+};
 
 export default MealCard;
