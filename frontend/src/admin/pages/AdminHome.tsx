@@ -1,15 +1,31 @@
-import React, { useState } from "react";
-
-import MobileHeader from "../components/MobileHeader.js";
+import React, { useContext, useEffect, useState } from "react";
 import { Box, Flex, Text, useDisclosure } from "@chakra-ui/react";
+import MobileHeader from "../components/MobileHeader.js";
+import AuthContext from "../../context/AuthContext.js";
 
 
-const AdminHome: React.FC = () => {
+const AdminHome = () => {
 
+  const [name, setName] = useState<string>('');
+
+  const authContext = useContext(AuthContext);
+
+  if (!authContext) {
+    throw new Error('AuthContext must be used within an AuthProvider');
+  }
+
+  const { user } = authContext;
+
+  useEffect(() => {
+    console.log('user ', user);
+    if(user?.name)
+      setName(user?.name)
+  }, [])
+  
+  console.log('the use in AdminHome', user);
   return (
     
-      <div>Welcome to the Admin Home Page!</div>
-    
+      <Text> Welcome {user?.name}, Ready to cook something delicious today? </Text>    
 
   ); 
 };

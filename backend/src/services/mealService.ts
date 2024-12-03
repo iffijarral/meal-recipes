@@ -86,6 +86,43 @@ export const mealService = {
     }
   },
 
+   // Fetch meal by Name
+   getMealByName: async (name: string) => {
+    try {
+      const meal = await Meal.findOne({ name }).populate('user');
+      if (!meal) {
+        throw new Error("Meal not found");
+      }
+
+      // Transform ingredients to remove _id if you don't need it
+      const ingredients = meal.ingredients.map(ingredient => ({
+        name: ingredient.name,
+        measure: ingredient.measure
+      }));
+
+      // Check if meal.user is populated
+      const user = transformUser(meal.user as IUserDocument);
+
+      // if(user) console.log('the user in meal is', user);
+
+      // Return the meal object as is because populate includes the user data
+      return {
+        id: meal._id.toString(),
+        name: meal.name,
+        category: meal.category,
+        ingredients: ingredients,
+        tags: meal.tags,
+        area: meal.area,
+        youtubeLink: meal.youtubeLink,
+        image: meal.image,
+        description: meal.description,
+        user: user
+      }
+    } catch (error) {
+      console.error("Error fetching meals by name:", error);
+      throw new Error("No meal found for the given name.");
+    }
+  },
   // Fetch meal by ID
   getMealsByCategory: async (category: string) => {
     try {

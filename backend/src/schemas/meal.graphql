@@ -64,6 +64,7 @@ type Query {
   users(limit: Int, offset: Int): [User!]!
   meals: [Meal!]!
   mealById(id: ID!): Meal
+  mealByName(name: String!): Meal
   mealsByCategory(category: String!): [Meal!]!
   categories: [Category!]!
   ingredients: [String!]!

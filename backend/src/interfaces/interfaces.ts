@@ -13,11 +13,11 @@ export interface IUser {
     updatedAt?: Date;
 }
 export interface IMeal {
-    id: string; 
+    id: string;
     name: string;
     category: string;
     ingredients: IIngredient[];
-    tags?: string[]; 
+    tags?: string[];
     area: string;
     youtubeLink?: string;
     image: string;
@@ -44,17 +44,20 @@ export interface IUserInput {
     isActive: boolean
     isVerified: boolean
 }
-
-export interface Image {  
+export interface ILoginInput {
+    email: string;
+    password: string;
+}
+export interface Image {
     filename: string;
 }
 
 export interface ICategory {
     idCategory: string | null;
     strCategory: string;
-    strCategoryThumb: string | null;  
+    strCategoryThumb: string | null;
 }
 
-export interface IArea {  
+export interface IArea {
     strArea: string;
 }

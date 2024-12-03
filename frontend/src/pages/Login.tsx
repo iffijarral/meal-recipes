@@ -1,7 +1,6 @@
 import React, { useState, useContext } from "react";
-import { Navigate } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-
+import { ValidationErrorItem } from "joi";
 import {
   Box,
   Button,
@@ -18,18 +17,20 @@ import {
   AlertIcon,
   AlertTitle,
   AlertDescription,
-  Spinner
+  Spinner,
+  FormErrorMessage
 } from "@chakra-ui/react";
-import { FormData } from "../interfaces/FormData";
-import { LOGIN_MUTATION } from "../graphql/mutations";
+import { IFormData } from "../interfaces/interfaces.js";
+import { LOGIN_MUTATION } from "../graphql/mutations.js";
 import { useMutation } from "@apollo/client";
-import { validate } from "../utils/validation";
-import { loginSchema } from "../schemas/loginSchema";
-import AuthContext from "../context/AuthContext";
+import { validate } from "../utils/validation.js";
+import { loginSchema } from "../schemas/loginSchema.js";
+import AuthContext from "../context/AuthContext.js";
+import { getErrorMessage } from "../utils/validation.js";
 
 const Login = () => {
-  const [formData, setFormData] = useState<FormData>({ email: '', password: '' });
-  const [errors, setErrors] = useState<any>({});
+  const [formData, setFormData] = useState<IFormData>({ email: '', password: '' });
+  const [errors, setErrors] = useState<ValidationErrorItem[]>([]);
   const [login, { data, loading, error }] = useMutation(LOGIN_MUTATION);
 
   const { loginContext } = useContext(AuthContext)!;
@@ -39,21 +40,24 @@ const Login = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    setErrors((prevErrors) => prevErrors.filter((err) => err.path[0] !== name));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Handle login logic here
 
-    const { valid, errors } = validate(loginSchema, formData);
+    const { valid, errors: validationErrors } = validate(loginSchema, formData);
+    
     if (!valid) {
-      setErrors(errors);
+      console.log(validationErrors);
+      setErrors(validationErrors || []);
       return;
     }
 
     try {
-      const { data } = await login({ variables: formData });
-      loginContext(data.login.token);
+      const { data } = await login({ variables: {input: formData } });
+      loginContext(data.login.token, data.login.user);
       navigate('/dashboard');
       console.log('Login result:', data);
     } catch (error) {
@@ -63,6 +67,7 @@ const Login = () => {
         console.error('Unexpected error:', error);
       }
     }
+    setErrors([]);
   };
 
   return (
@@ -81,17 +86,17 @@ const Login = () => {
         boxShadow="lg"
         bg={useColorModeValue("white", "gray.700")}
       >
-        <VStack spacing={6} as="form" onSubmit={handleSubmit}>
+        <VStack spacing={6} as="form" noValidate onSubmit={handleSubmit}>
           <Heading size="lg">Sign in to your account</Heading>
-          <FormControl id="email" isRequired>
+          <FormControl id="email" isInvalid={!!getErrorMessage(errors, 'email')}>
             <FormLabel>Email address</FormLabel>
-            <Input type="email" name="email" placeholder="Your email" onChange={handleChange} />
-            {errors.email && <span>{errors.email.message}</span>}
+            <Input type="text" name="email" placeholder="Your email" onChange={handleChange} />
+            <FormErrorMessage>{getErrorMessage(errors, 'email')}</FormErrorMessage>
           </FormControl>
-          <FormControl id="password" isRequired>
+          <FormControl id="password" isInvalid={!!getErrorMessage(errors, 'password')}>
             <FormLabel>Password</FormLabel>
             <Input type="password" name="password" placeholder="Your password" onChange={handleChange} />
-            {errors.password && <span>{errors.password.message}</span>}
+            <FormErrorMessage>{getErrorMessage(errors, 'password')}</FormErrorMessage>
           </FormControl>
           <Button
             colorScheme="blue"
@@ -112,6 +117,11 @@ const Login = () => {
               onClick={() => navigate("/signup")}
             >Sign Up</Button>
           </Text>
+          <Box width="100%" textAlign="center" mt={4}>
+            <Button variant="outline" colorScheme="blue" onClick={() => navigate("/")}>
+              Go to Home
+            </Button>
+          </Box>
           {/* Loading Indicator */}
           {loading && (
             <Spinner size="xl" color="blue.500" />
@@ -130,12 +140,12 @@ const Login = () => {
             <Alert status="success" mt={4}>
               <AlertIcon />
               <AlertTitle>Signup successful!</AlertTitle>
-              <AlertDescription>Welcome, {data.signup.username}</AlertDescription>
+              <AlertDescription>Welcome, {data.signup.username}, Please login to proceed.</AlertDescription>
             </Alert>
           )}
         </VStack>
-      </Box>
-    </Box>
+      </Box >
+    </Box >
   );
 };
 
