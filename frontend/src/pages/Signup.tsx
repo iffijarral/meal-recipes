@@ -58,6 +58,7 @@ const Signup = () => {
       name: sanitizeInput(formData.name || ""),
       email: sanitizeEmail(formData.email),
       password: sanitizePassword(formData.password),
+      confirmPassword: sanitizePassword(formData.confirmPassword || ""),
       role: 'user',
       isActive: false,
       isVerified: false
@@ -146,7 +147,7 @@ const Signup = () => {
         <Alert status="success" mt={4}>
           <AlertIcon />
           <AlertTitle>Signup successful!</AlertTitle>
-          <AlertDescription>Welcome, {data.signup.username}</AlertDescription>
+          <AlertDescription>Welcome, {data.signup.name}. Please check your mail for verification.</AlertDescription>
         </Alert>
       )}
         </VStack>

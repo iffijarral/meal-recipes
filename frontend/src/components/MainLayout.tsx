@@ -26,8 +26,7 @@ const MainLayout = () => {
     };
 
     useEffect(() => {
-        if (data?.mealByName) {
-            console.log('fetched meal', data.mealByName);
+        if (data?.mealByName) {            
             setSelectedMeal(data.mealByName);
         } else if (!loading && data && !data.mealByName) {
             setNotFoundMessage('No meal found for the given name.');

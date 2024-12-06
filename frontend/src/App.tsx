@@ -14,7 +14,6 @@ import Template from "./admin/components/Template.js";
 import AdminHome from "./admin/pages/AdminHome.js";
 import Meals from "./admin/pages/Meals.js";
 import MealForm from "./admin/components/MealForm.js";
-import Test from "./pages/Test.js";
 import MainLayout from "./components/MainLayout.js";
 
 
@@ -51,7 +50,9 @@ const App: React.FC = () => (
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Template />}>
             <Route index element={<AdminHome />} />
-            <Route path="meals" element={<MealForm />} />
+            <Route path="meals" element={<Meals />} />
+            <Route path="new-meal" element={<MealForm />} />
+            <Route path="edit-meal/:mealId" element={<MealForm />} />
           </Route>
         </Route>
 

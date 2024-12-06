@@ -32,8 +32,6 @@ export const userSchema = Joi.object({
             'string.empty': 'Confirm password cannot be empty.',
             'any.required': 'Confirm password cannot be empty.',
             'any.only': 'Confirm password must match the password.',            
-    }),
-    role: Joi.string().required(),
-    isActive: Joi.boolean().required(),
-    isVerified: Joi.boolean().required()
-});
+    }), 
+    role: Joi.string().valid('user', 'admin').optional()   
+}).unknown();

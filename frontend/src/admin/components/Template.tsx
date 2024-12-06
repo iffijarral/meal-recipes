@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Outlet } from "react-router-dom";
-import { Box, Button, Flex, Heading, HStack, useColorModeValue } from "@chakra-ui/react"; // Use Chakra UI for styling
+import { Box, Button, Flex, Heading, HStack, Text, useColorModeValue } from "@chakra-ui/react"; // Use Chakra UI for styling
 import Navigation from "./Navigation.js";
 import { Link as RouterLink } from 'react-router-dom';
+import AuthContext from "../../context/AuthContext.js";
 
 const Template = () => {
+  const { user, loading: userLoading } = useContext(AuthContext)!;
+
   const borderColor = useColorModeValue("gray.200", "gray.600");
   return (
     <Flex direction="column" minH="100vh">
@@ -13,9 +16,12 @@ const Template = () => {
         <Box as="header" color="white" p={4} borderBottomWidth="1px" borderBottomColor={borderColor}>
           <HStack justifyContent="space-between">
             <Heading>J.Recipes Dashboard</Heading>
-            <Button as={RouterLink} to="/logout" colorScheme="blue">
-              Logout
-            </Button>
+            <HStack>
+              <Text>{user?.name}</Text>
+              <Button as={RouterLink} to="/logout" colorScheme="blue">
+                Logout
+              </Button>
+            </HStack>
           </HStack>
         </Box>
       </header>

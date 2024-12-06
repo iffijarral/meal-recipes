@@ -33,7 +33,7 @@ const MealGrid = ({ onSelectMeal }: Props) => {
 
     return (
         <SimpleGrid
-            columns={{ sm: 1, md: 2, lg: 3 }}
+            columns={{ sm: 1, md: 3 }}
             spacing={10}
             padding={10}
         >

@@ -1,9 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
 import { ChakraProvider, ColorModeScript } from "@chakra-ui/react";
-import theme from "./theme";
-import ApolloWrapper from "./apolloClient";
+import App from "./App.js";
+import theme from "./theme.js";
+import ApolloWrapper from "./apolloClient.js";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

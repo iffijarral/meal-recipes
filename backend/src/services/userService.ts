@@ -4,11 +4,12 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
 import { handleEmailVerification } from "./verificationService.js";
 import { userSchema } from "../validators/userSchema.js";
-import { ILoginInput, IUserInput } from "../interfaces/interfaces.js";
+import { ILoginInput, IUser, IUserInput } from "../interfaces/interfaces.js";
 import { loginSchema } from "../validators/loginSchema.js";
+import mongoose from "mongoose";
 
 export const userService = {
-  // Creating a new user
+  // Creating a new user 
   createUser: async (input: IUserInput) => {
     const { error } = userSchema.validate(input);
     if (error) {
@@ -22,10 +23,13 @@ export const userService = {
     return newUser;
   },
   authenticate: async (input: ILoginInput) => {
+    
     const { error } = loginSchema.validate(input);
+    
     if (error) {
       throw new Error(`Validation failed: ${error.details.map(e => e.message).join(", ")}`);
     }
+    
     const user = await userService.getUserByEmail(input.email); // Fetch user by email through service
     if (!user) {
       throw new Error("User not found");
@@ -47,10 +51,26 @@ export const userService = {
   },
   // Fetch user by ID
   getUserById: async (id: string) => {
-    const user = await User.findById(id);
-    if (!user) {
+
+    // if (!mongoose.Types.ObjectId.isValid(id)) {
+    //   throw new Error('Invalid user ID');
+    // }
+
+    const userDoc = await User.findById(id);
+    if (!userDoc) {
       throw new Error("User not found");
     }
+
+    // Transform Mongoose document to plain object
+    const user: IUser = {
+      id: userDoc._id.toString(), // Map `_id` to `id`
+      name: userDoc.name,
+      email: userDoc.email,
+      isActive: userDoc.isActive,
+      isVerified: userDoc.isVerified,
+      role: userDoc.role      
+    };
+
     return user;
   },
 
