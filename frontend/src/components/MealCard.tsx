@@ -16,7 +16,7 @@ const MealCard = ({ meal, onClick }: Props) => {
             _hover={{ boxShadow: "lg" }}
             transition="box-shadow 0.2s"
         >
-            <Image src={`/uploads/${meal.image}`} alt={`${meal.name} - ${meal.id}`} />
+            <Image src={`/uploads/thumbnails/${meal.image}`} alt={`${meal.name} - ${meal.id}`} />
             <CardBody>
                 <Heading textAlign="center" fontSize="2xl">{meal.name}</Heading>
             </CardBody>

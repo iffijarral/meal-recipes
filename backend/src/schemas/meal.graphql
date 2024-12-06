@@ -59,6 +59,12 @@ input MealInput {
   userId: ID
 }
 
+type DeleteMealResponse {
+  success: Boolean!
+  message: String
+  mealId: ID
+}
+
 type Query {
   user(id: ID!): User
   users(limit: Int, offset: Int): [User!]!
@@ -66,6 +72,8 @@ type Query {
   mealById(id: ID!): Meal
   mealByName(name: String!): Meal
   mealsByCategory(category: String!): [Meal!]!
+  mealsByCategoryUser(category: String!, userId: ID!): [Meal!]!
+  categoriesByUser(userId: ID!): [Category!]!  
   categories: [Category!]!
   ingredients: [String!]!
   areas: [Area!]!  
@@ -74,7 +82,7 @@ type Query {
 type Mutation {
   addMeal(input: MealInput): Meal
   updateMeal(id: ID, input: MealInput): Meal
-  deleteMeal(id: ID): Meal
+  deleteMeal(id: ID): DeleteMealResponse
   uploadImage(image: Upload!): Image
 }
 

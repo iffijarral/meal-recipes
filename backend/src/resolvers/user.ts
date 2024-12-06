@@ -1,18 +1,18 @@
 import { config } from "dotenv";
 import { userService } from "../services/userService.js";
-import { ILoginInput, IUserInput } from "../interfaces/interfaces.js";
+import { ILoginInput, IUser, IUserInput } from "../interfaces/interfaces.js";
 
 config(); // To access env variables
 
 export const userResolvers = {
   Query: {
-    user: async (_: any, { id }: { id: string }) => {
+    user: async (_: any, { id }: { id: string }): Promise<IUser | null> => {
       try {
         return await userService.getUserById(id); // Use service to fetch user
       } catch (error) {
         console.error("Error fetching user:", error);
         throw new Error("Failed to fetch user");
-      }
+      } 
     },
     users: async () => {
       try {

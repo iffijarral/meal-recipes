@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-const mealFormSchema = Joi.object({
+const mealFormSchema = (isUpdate = false) => Joi.object({
   name: Joi.string()
     .trim()
     .required()
@@ -27,6 +27,7 @@ const mealFormSchema = Joi.object({
         measure: Joi.string().trim().required().messages({
           "string.empty": "Ingredient measure cannot be empty.",
         }),
+        
       })
     )
     .min(1)
@@ -49,18 +50,31 @@ const mealFormSchema = Joi.object({
     .allow("")
     .messages({
       "string.max": "Description cannot exceed 500 characters.",
-    }),
-  file: Joi.any()
-    .allow(null)
-    .messages({
-      "any.invalid": "Invalid file type.",
-    }),
+    }),  
   youtubeLink: Joi.string()
     .trim()
-    .uri()    
+    .uri()
     .messages({
-      "string.uri": "YouTube link must be a valid URL.",      
+      "string.uri": "YouTube link must be a valid URL.",
     }),
+  image: isUpdate ? Joi.any().optional() // Optional for update
+  :
+  Joi.string()
+  .trim()
+  .required()
+  .max(100)
+  .allow("")
+  .messages({
+    "string.empty": "Area is required.",
+    "any.required": "Area is required.",
+    "string.max": "image url cannot exceed 100 characters.",
+  }),
+  userId: Joi.string()
+  .required()
+  .messages({
+    "string.empty": "userId is required.",
+    "any.required": "userId is required.",
+  }),
 }).or("category", "newCategory").messages({
   "object.missing": "Please select a category or provide a new category.",
 });

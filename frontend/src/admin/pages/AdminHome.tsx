@@ -17,12 +17,11 @@ const AdminHome = () => {
   const { user } = authContext;
 
   useEffect(() => {
-    console.log('user ', user);
+    
     if(user?.name)
       setName(user?.name)
   }, [])
-  
-  console.log('the use in AdminHome', user);
+    
   return (
     
       <Text> Welcome {user?.name}, Ready to cook something delicious today? </Text>    

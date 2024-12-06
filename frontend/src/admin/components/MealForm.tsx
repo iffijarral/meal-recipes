@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
     Box,
     Button,
@@ -19,16 +19,19 @@ import {
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { useMutation, useQuery } from "@apollo/client";
-import { ADD_MEAL_MUTATION, UPLOAD_IMAGE } from "../../graphql/mutations.js";
-import { GET_CATEGORIES_INGREDIENTS } from "../../graphql/queries.js";
+import { ADD_MEAL_MUTATION, UPDATE_MEAL_MUTATION, UPLOAD_IMAGE } from "../../graphql/mutations.js";
+import { GET_CATEGORIES_INGREDIENTS, GET_MEAL_DETAILS, GET_MEALS_BY_CATEGORY_USER } from "../../graphql/queries.js";
 import AuthContext from "../../context/AuthContext.js";
-import { ICategory } from "../../interfaces/interfaces.js";
+import { ICategory, IMeal } from "../../interfaces/interfaces.js";
 import { ValidationErrorItem } from "joi";
-import { validate } from "../../utils/validation.js";
+import { validate, validateFile } from "../../utils/validation.js";
 import mealFormSchema from "../../schemas/mealFormSchema.js";
 import { getErrorMessage } from "../../utils/validation.js";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
-const MealForm: React.FC = () => {
+
+
+const MealForm = () => {
     const [name, setName] = useState("");
     const [category, setCategory] = useState<ICategory | null>(null);
     const [newCategory, setNewCategory] = useState<ICategory | null>(null);
@@ -40,18 +43,50 @@ const MealForm: React.FC = () => {
     const [youtubeLink, setYoutubeLink] = useState("");
     const [errors, setErrors] = useState<ValidationErrorItem[]>([]);
 
+    const { mealId } = useParams(); // When to use for edit
+    const navigate = useNavigate();
+
+    const isUpdate = !!mealId;
+
     const { user } = useContext(AuthContext)!;
 
-    const [addMeal, { loading, error, data }] = useMutation(ADD_MEAL_MUTATION);
+    const [addMeal, { loading, error, data }] = useMutation(ADD_MEAL_MUTATION, {        
+        onCompleted: (data) => {
+            console.log('Meal added successfully:', data);            
+            navigate("/dashboard/meals", { state: { newMeal: data.addMeal } });
+        },
+        onError: (error) => {
+            console.error("Error adding meal:", error);
+        },
+    });
+    const [updateMeal, { loading: updating, error: updateError, data: updateData }] = useMutation(UPDATE_MEAL_MUTATION);
     const [uploadImage] = useMutation(UPLOAD_IMAGE);
     const { loading: loadingOptions, error: errorOptions, data: optionsData } = useQuery(
         GET_CATEGORIES_INGREDIENTS
     );
 
+    const { data: editMealData, loading: editMealLoading } = useQuery(GET_MEAL_DETAILS, {
+        variables: { id: mealId },
+        skip: !mealId, // Skip query if mealId is not present (add mode)
+    });
+
     const categories = optionsData?.categories || [];
     const availableIngredients = optionsData?.ingredients || [];
 
     const BASE_API_URI = import.meta.env.VITE_REACT_APP_GRAPHQL_URI;
+
+    useEffect(() => {
+        if (editMealData && mealId) {
+            const meal = editMealData.mealById;
+            setName(meal.name || "");
+            meal.category ? setCategory({ strCategory: meal.category }) : setCategory(null);
+            setIngredients(meal.ingredients || [{ name: "", measure: "" }]);
+            setTags(meal.tags || []);
+            setArea(meal.area || "");
+            setDescription(meal.description || "");
+            setYoutubeLink(meal.youtubeLink || "");
+        }
+    }, [editMealData, mealId]);
 
     const handleIngredientChange = (index: number, field: string, value: string) => {
         const updatedIngredients = [...ingredients];
@@ -64,7 +99,7 @@ const MealForm: React.FC = () => {
     };
 
     const removeIngredient = (index: number) => {
-        setIngredients((prevIngredients) => 
+        setIngredients((prevIngredients) =>
             prevIngredients.filter((_, i) => i !== index)
         );
     };
@@ -87,18 +122,29 @@ const MealForm: React.FC = () => {
         setYoutubeLink("");
     };
 
+
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const validIngredients = ingredients.filter(
-            (ing) => ing.name.trim() !== "" && ing.measure.trim() !== ""
-        );
+        const validIngredients = ingredients
+            .filter((ing) => ing.name.trim() !== "" && ing.measure.trim() !== "")
+            .map((ingredient) => {
+                // Only destructure if __typename exists
+                if ('__typename' in ingredient) {
+                    const { __typename, ...rest } = ingredient;
+                    return rest;
+                }
+                return ingredient;
+            });
 
         let imageUrl = "";
+
         if (file) {
 
             try {
                 console.log('sending image:', file);
+                validateFile(file);
                 const { data } = await uploadImage({ variables: { "image": file } });
                 imageUrl = data.uploadImage.filename;
                 console.log('fetched image data', data);
@@ -115,11 +161,11 @@ const MealForm: React.FC = () => {
             area,
             description,
             youtubeLink,
-            image: imageUrl,
             userId: user?.id || "",
+            ...(imageUrl && { image: imageUrl }) // Conditionally include the image property
         };
 
-        const { valid, errors: validationErrors } = validate(mealFormSchema, meal);
+        const { valid, errors: validationErrors } = validate(mealFormSchema(isUpdate), meal);
 
         if (!valid) {
             console.log("validation Errors", validationErrors);
@@ -128,8 +174,17 @@ const MealForm: React.FC = () => {
         }
 
         try {
-            await addMeal({ variables: { input: meal } });
-            resetForm() // Reset the form after successful submission
+            if (isUpdate) {
+                // Edit mode
+                await updateMeal({ variables: { id: mealId, input: meal } });
+
+            } else {
+                // Add mode
+                await addMeal({ variables: { input: meal } });
+
+            }
+            resetForm();
+
         } catch (err) {
             console.error("Error adding meal:", err);
         }
@@ -147,7 +202,8 @@ const MealForm: React.FC = () => {
         >
             <Box w="full" maxW="xl" p={6} borderRadius="md" boxShadow="lg">
                 <VStack spacing={6} as="form" onSubmit={handleSubmit}>
-                    <Heading size="lg">Create a New Meal</Heading>
+
+                    {isUpdate ? <Heading size="lg">Update Meal</Heading> : <Heading size="lg">Create a New Meal</Heading>}
 
                     <FormControl isInvalid={Boolean(getErrorMessage(errors, "name"))}>
                         <FormLabel>Meal Name</FormLabel>
@@ -301,9 +357,9 @@ const MealForm: React.FC = () => {
                         />
                     </FormControl>
 
-                    <FormControl isRequired>
+                    <FormControl isRequired={!isUpdate}>
                         <FormLabel>Upload Image</FormLabel>
-                        <Input type="file" onChange={handleFileChange} />
+                        <Input type="file" onChange={handleFileChange} accept=".jpg,.jpeg,.png,.webp" />
                     </FormControl>
 
                     <FormControl isInvalid={Boolean(getErrorMessage(errors, "youtubeLink"))} >

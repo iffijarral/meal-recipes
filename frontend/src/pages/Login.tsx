@@ -57,12 +57,13 @@ const Login = () => {
 
     try {
       const { data } = await login({ variables: {input: formData } });
+      console.log('data in login page', data);
       loginContext(data.login.token, data.login.user);
       navigate('/dashboard');
       console.log('Login result:', data);
     } catch (error) {
       if (error instanceof Error) {
-        console.error('Signup error:', error.message);
+        console.error('Login error:', error.message);
       } else {
         console.error('Unexpected error:', error);
       }

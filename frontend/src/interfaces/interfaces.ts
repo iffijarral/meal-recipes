@@ -47,5 +47,6 @@ export interface IMealInput {
 export interface IFormData {
     name?: string;
     email: string;
-    password: string;    
+    password: string;
+    confirmPassword?: string;    
 }

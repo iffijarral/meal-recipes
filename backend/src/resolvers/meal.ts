@@ -68,6 +68,34 @@ export const mealResolvers = {
         }
       }
     },
+
+    mealsByCategoryUser: async (_: any, { category, userId }: { category: string, userId: string }): Promise<IMeal[] | null > => {
+      try {
+        return await mealService.getMealsByCategoryUser(category, userId);
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error('Error during meal fetch operation:', error.message);
+          throw new Error(error.message);
+        } else {
+          console.error('Unexpected error:', error);
+          throw new Error('Unexpected error during meal fetch');
+        }
+      }
+    },
+
+    categoriesByUser: async (_: any, { userId }: { userId: string }): Promise<ICategory[] | null > => {
+      try {
+        return await mealService.getCategoriesByUser(userId);
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error('Error during meal fetch operation:', error.message);
+          throw new Error(error.message);
+        } else {
+          console.error('Unexpected error:', error);
+          throw new Error('Unexpected error during meal fetch');
+        }
+      }
+    },
     categories: async (): Promise<ICategory[]> => {
       try {
         return await mealService.getDistinctCategories();
@@ -125,7 +153,7 @@ export const mealResolvers = {
         }
       }
     },
-    updateMeal: async (_: any, { id, input }: { id: string, input: IMealInput }) => {
+    updateMeal: async (_: any, { id, input }: { id: string, input: IMealInput }): Promise<IMeal | null > => {
       try {
         return await mealService.updateMeal(id, input);
       } catch (error) {
@@ -138,12 +166,12 @@ export const mealResolvers = {
         }
       }
     },
-    deleteMeal: async (_: any, { id }: { id: string }) => {
+    deleteMeal: async (_: any, { id }: { id: string }): Promise<{success: boolean, message: string, mealId: string} | {}> => {
       try {
         return await mealService.deleteMeal(id);
       } catch (error) {
         if (error instanceof Error) {
-          console.error('Error during meal deletion operation:', error.message);
+          console.error('Error during meal delete operation:', error.message);
           throw new Error(error.message);
         } else {
           console.error('Unexpected error:', error);
@@ -156,16 +184,16 @@ export const mealResolvers = {
       { image }: { image: Promise<FileUpload> } // Arguments with typing
     ): Promise<Image> => {
       
-      try {
+      try { 
         const uploadedImage = await mealService.uploadImage(image);
         await mealService.generateThumbnail(uploadedImage.filename);
         return uploadedImage;
       } catch (error) {
         if (error instanceof Error) {
-          console.error('Error during image upload operation:', error.message);
+          console.error('Error during image upload operation at backend:', error.message);
           throw new Error(error.message);
         } else {
-          console.error('Unexpected error:', error);
+          console.error('Unexpected error while image upload backend:', error);
           throw new Error('Unexpected error during image upload');
         }
       }      

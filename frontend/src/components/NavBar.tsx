@@ -40,11 +40,14 @@ const NavBar = ({ onSearch }: NavBarProps) => {
             borderRadius="full"
           />
           <MenuList>
-            <MenuItem as={Link} to="/login">Login</MenuItem>
-            <MenuItem as={Link} to="/signup">Signup</MenuItem>
-            {
-              user && <MenuItem as={Link} to="/dashboard">Dashboard</MenuItem>
-            }
+            {user ? (
+              <MenuItem as={Link} to="/dashboard">Dashboard</MenuItem>
+            ) : (
+              <>
+                <MenuItem as={Link} to="/login">Login</MenuItem>
+                <MenuItem as={Link} to="/signup">Signup</MenuItem>
+              </>
+            )}
           </MenuList>
         </Menu>
         {/* Color Mode Switch */}

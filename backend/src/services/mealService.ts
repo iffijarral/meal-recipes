@@ -2,16 +2,18 @@ import { FileUpload } from "graphql-upload/processRequest.mjs";
 import path from 'path';
 import fs from 'fs';
 import { IMealDocument, Meal } from "../models/Meal.js";
-import { Image, IMeal, IMealInput, IUser } from "../interfaces/interfaces.js";
+import { IIngredient, Image, IMeal, IMealInput, IUser } from "../interfaces/interfaces.js";
 import { mealSchema } from "../validators/mealValidator.js";
 import sharp from "sharp";
-import { IUserDocument } from "../models/User.js";
-import { ObjectId } from "mongoose";
+import { IUserDocument, User } from "../models/User.js";
+import mongoose, { ObjectId } from "mongoose";
+
+const UPLOADS_DIRECTORY = '/app/uploads';
 
 export const mealService = {
   // Creating a new meal
   createMeal: async (mealData: IMealInput) => {
-    const { error } = mealSchema.validate(mealData);
+    const { error } = mealSchema(false).validate(mealData); // Here false means image must be validated because its new meal
     if (error) {
       throw new Error(`Validation failed: ${error.details.map(e => e.message).join(", ")}`);
     }
@@ -27,25 +29,75 @@ export const mealService = {
 
   // Update a meal
   updateMeal: async (id: string, mealData: IMealInput) => {
-    const { error } = mealSchema.validate(mealData);
-    if (error) {
-      throw new Error(`Validation failed: ${error.details.map(e => e.message).join(", ")}`);
+    try {
+      const { error } = mealSchema(true).validate(mealData); // here true means its update operation and image is optional to validate
+      if (error) {
+        throw new Error(`Validation failed: ${error.details.map(e => e.message).join(", ")}`);
+      }
+
+      const updatedMeal = await Meal.findByIdAndUpdate(id, mealData, { new: true });
+
+      if (!updatedMeal) {
+        throw new Error("Meal not found");
+      }
+
+      // Transform ingredients to remove _id if you don't need it
+      const ingredients = transformIngredients(updatedMeal);
+
+      // Check if meal.user is populated
+      const user = transformUser(updatedMeal.user as IUserDocument);
+
+      // Return the meal object as is because populate includes the user data
+      return {
+        id: updatedMeal._id.toString(),
+        name: updatedMeal.name,
+        category: updatedMeal.category,
+        ingredients: ingredients,
+        tags: updatedMeal.tags,
+        area: updatedMeal.area,
+        youtubeLink: updatedMeal.youtubeLink,
+        image: updatedMeal.image,
+        description: updatedMeal.description,
+        user: user
+      }
+
+    } catch (error) {
+      console.error("Error updating meal:", error);
+      throw new Error("Failed to update the meal");
     }
 
-    const updatedMeal = await Meal.findByIdAndUpdate(id, mealData, { new: true });
-    if (!updatedMeal) {
-      throw new Error("Meal not found");
-    }
-    return updatedMeal;
   },
 
   // Delete a meal
   deleteMeal: async (id: string) => {
-    const deletedMeal = await Meal.findByIdAndDelete(id);
-    if (!deletedMeal) {
-      throw new Error("Meal not found");
+    try {
+      const deletedMeal = await Meal.findByIdAndDelete(id);
+
+      if (!deletedMeal) {
+        return {
+          success: false,
+          message: "Meal deletion failed",
+          mealId: null,
+        };
+      }
+      const imageName = deletedMeal.image;
+      if(deleteImage(imageName)) {
+        return {
+          success: true,
+          message: "Meal deleted successfully",
+          mealId: id,
+        };
+      } else {
+        return {
+          success: true,
+          message: "Meal deleted successfully but not image",
+          mealId: id,
+        };
+      }
+    } catch (error) {
+      console.error("Error deleting meal:", error);
+      return { success: false, message: "Error deleting meal" };
     }
-    return deletedMeal;
   },
 
   // Fetch meal by ID
@@ -57,15 +109,10 @@ export const mealService = {
       }
 
       // Transform ingredients to remove _id if you don't need it
-      const ingredients = meal.ingredients.map(ingredient => ({
-        name: ingredient.name,
-        measure: ingredient.measure
-      }));
+      const ingredients = transformIngredients(meal);
 
       // Check if meal.user is populated
       const user = transformUser(meal.user as IUserDocument);
-
-      // if(user) console.log('the user in meal is', user);
 
       // Return the meal object as is because populate includes the user data
       return {
@@ -86,8 +133,8 @@ export const mealService = {
     }
   },
 
-   // Fetch meal by Name
-   getMealByName: async (name: string) => {
+  // Fetch meal by Name
+  getMealByName: async (name: string) => {
     try {
       const meal = await Meal.findOne({ name }).populate('user');
       if (!meal) {
@@ -102,8 +149,6 @@ export const mealService = {
 
       // Check if meal.user is populated
       const user = transformUser(meal.user as IUserDocument);
-
-      // if(user) console.log('the user in meal is', user);
 
       // Return the meal object as is because populate includes the user data
       return {
@@ -123,7 +168,7 @@ export const mealService = {
       throw new Error("No meal found for the given name.");
     }
   },
-  // Fetch meal by ID
+  // Fetch meal by category
   getMealsByCategory: async (category: string) => {
     try {
       const meals = await Meal.find({ category }).populate('user');
@@ -149,7 +194,50 @@ export const mealService = {
       console.error("Error fetching meals by Category:", error);
       throw new Error("Failed to fetch meals");
     }
-    
+
+  },
+  getMealsByCategoryUser: async (category: string, userId: string) => {
+    try {
+      const user = await User.findById(userId);
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      const isAdmin = user.role === 'admin';
+
+      // Build the filter object based on user's role
+      const filter = isAdmin
+        ? { category } // Admin sees all meals in the category
+        : { user: user._id, category }; // Non-admin sees only their meals in the category
+
+      // Query the database with the filter
+      const meals = await Meal.find(filter).populate('user');
+
+      if (meals.length === 0) {
+        throw new Error(`No meals found for category: ${category}`);
+      }
+
+      return meals.map((meal) => {
+        const user = transformUser(meal.user as IUserDocument);
+        return {
+          id: meal._id.toString(),
+          name: meal.name,
+          category: meal.category,
+          ingredients: meal.ingredients,
+          tags: meal.tags,
+          area: meal.area,
+          youtubeLink: meal.youtubeLink,
+          image: meal.image,
+          description: meal.description,
+          user
+        }
+      })
+    } catch (error) {
+      console.error("Error fetching meals by Category:", error);
+      throw new Error("Failed to fetch meals");
+    }
+
   },
 
   // Fetch all meals
@@ -179,7 +267,37 @@ export const mealService = {
       throw new Error("Failed to fetch meals");
     }
   },
+  getCategoriesByUser: async (userId: string) => {
+    try {
 
+      // if (!mongoose.Types.ObjectId.isValid(userId)) {
+      //   throw new Error('Invalid user ID');
+      // }
+
+      const user = await User.findById(userId);
+      console.log('user is', user);
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      const isAdmin = user.role === 'admin';
+
+      const filter = isAdmin ? {} : { user: user._id };
+
+      const distinctCategories = await Meal.distinct('category', filter);
+
+      return distinctCategories.map((category, index) => ({
+        idCategory: index.toString(), // Generated an ID as a string, though i don't need it at frontend
+        strCategory: category,       // Used the category name
+        strCategoryThumb: "",        // Placeholder for thumbnail. 
+      }));
+
+
+    } catch (error) {
+      console.error("Error fetching meals:", error);
+      throw new Error("Failed to fetch meals");
+    }
+  },
   // Fetch distinct categories
   getDistinctCategories: async () => {
     try {
@@ -312,3 +430,40 @@ const transformUser = (user: IUserDocument): IUser => ({
   createdAt: user.createdAt,
   updatedAt: user.updatedAt,
 });
+
+const transformIngredients = (meal: IMealDocument): IIngredient[] => {
+  const ingredients: IIngredient[] = meal.ingredients.map(ingredient => ({
+    name: ingredient.name,
+    measure: ingredient.measure
+  }));
+
+  return ingredients;
+};
+
+const deleteImage = (filename: string) => {
+  const imagePath = path.join(UPLOADS_DIRECTORY, filename);
+  const thumbnailPath = path.join(UPLOADS_DIRECTORY, 'thumbnails', filename);
+  let imageDeleted = false;
+  let thumbnailDeleted = false;
+
+  // Delete main image
+  if (fs.existsSync(imagePath)) {
+    fs.unlinkSync(imagePath);
+    imageDeleted = true;
+    console.log("Main image file deleted successfully:", imagePath);    
+  } else {
+    console.warn("Main image file does not exist:", imagePath);
+  }
+
+  // Delete thumbnail
+  if (fs.existsSync(thumbnailPath)) {
+    fs.unlinkSync(thumbnailPath);
+    thumbnailDeleted = true;
+    console.log("Main image file deleted successfully:", thumbnailPath);
+  } else {
+    console.warn("Main image file does not exist:", thumbnailPath);
+  }
+
+  return imageDeleted && thumbnailDeleted; 
+
+}
