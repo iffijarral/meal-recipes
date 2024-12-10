@@ -1,0 +1,43 @@
+stages:
+  - build
+  - deploy
+
+# Set variables for GitLab's container registry
+variables:
+  FRONTEND_IMAGE: $CI_REGISTRY_IMAGE/frontend:latest
+  BACKEND_IMAGE: $CI_REGISTRY_IMAGE/backend:latest
+
+# Authenticate with the container registry
+before_script:
+  - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin
+
+# Build and push the frontend image
+frontend-build:
+  stage: build
+  services:
+    - docker:dind
+  script:
+    - docker build -t $FRONTEND_IMAGE ./frontend
+    - docker push $FRONTEND_IMAGE
+  only:
+    - main
+
+# Build and push the backend image
+backend-build:
+  stage: build
+  services:
+    - docker:dind
+  script:
+    - docker build -t $BACKEND_IMAGE ./backend
+    - docker push $BACKEND_IMAGE
+  only:
+    - main
+
+# Deploy step to Render via registry trigger
+deploy:
+  stage: deploy
+  script:
+    - echo "Triggering deployment to Render via GitLab CI/CD..."
+    - curl -X POST -H "Authorization: Bearer $RENDER_API_TOKEN" https://api.render.com/deploy/some-endpoint
+  only:
+    - main
