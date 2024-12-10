@@ -36,8 +36,14 @@ services:
       - "27017:27017"   # Expose MongoDB
     volumes:
       - mongo-data:/data/db
+    environment:
+      - GLIBC_TUNABLES=glibc.pthread.rseq=0
+      - MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     networks:
       - app-network
+    env_file:
+      - .env
   nginx:
     image: nginx:stable-alpine
     container_name: nginx                                                                                                                            
