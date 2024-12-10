@@ -41,7 +41,7 @@ const DeleteMealButton = ({ mealId, selectedCategory, userId }: Props) => {
                     },
                 });
             }
-        },
+        },        
         onError: (err) => {
             toast({
                 title: "Error",
