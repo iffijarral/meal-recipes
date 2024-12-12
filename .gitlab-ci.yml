@@ -6,8 +6,7 @@ stages:
 variables:
   FRONTEND_IMAGE: $CI_REGISTRY_IMAGE/frontend:latest
   BACKEND_IMAGE: $CI_REGISTRY_IMAGE/backend:latest
-  WORK_DIR: /path/to/your/app # Update with the actual directory on your server
-  MAIN_BRANCH: main # Replace 'main' with your actual branch name
+  
 
 # Authenticate with the container registry
 before_script:
