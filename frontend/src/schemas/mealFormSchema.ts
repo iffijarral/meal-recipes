@@ -46,7 +46,7 @@ const mealFormSchema = (isUpdate = false) => Joi.object({
     }),
   description: Joi.string()
     .trim()
-    .max(500)
+    .max(5000)
     .allow("")
     .messages({
       "string.max": "Description cannot exceed 500 characters.",
