@@ -46,11 +46,14 @@ deploy:
   stage: deploy
   image: docker:latest
   script:
+    # Decode the SSH key from base64 and write it to the id_rsa file
     - mkdir -p ~/.ssh
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
-    - chmod 600 ~/.ssh/id_rsa
+    - echo "$SSH_PRIVATE_KEY" | base64 -d > ~/.ssh/id_rsa
     - chmod 700 ~/.ssh
-    - ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts    
-    - ssh $SSH_USER@$SSH_HOST "mkdir -p $WORK_DIR && cd $WORK_DIR && git pull origin main && docker-compose down && docker-compose up -d --build"
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
+    # Debugging: Verbose SSH command
+    - ssh -vvv $SSH_USER@$SSH_HOST "mkdir -p $WORK_DIR && cd $WORK_DIR && git pull origin main && docker-compose down && docker-compose up -d --build"
   only:
     - main
