@@ -6,6 +6,8 @@ stages:
 variables:
   FRONTEND_IMAGE: $CI_REGISTRY_IMAGE/frontend:latest
   BACKEND_IMAGE: $CI_REGISTRY_IMAGE/backend:latest
+  WORK_DIR: /path/to/your/app # Update with the actual directory on your server
+  MAIN_BRANCH: main # Replace 'main' with your actual branch name
 
 # Authenticate with the container registry
 before_script:
@@ -33,15 +35,15 @@ backend-build:
   only:
     - main
 
-# Deploy step to Render via registry trigger
+# Deploy step to Linode VPS
 deploy:
   stage: deploy
   script:
     - echo "Triggering deployment to Linode VPS via GitLab CI/CD..."
     - mkdir -p ~/.ssh
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
-    - ssh-keyscan $SSH_HOST >> ~/.ssh/known_hosts
-    - ssh $SSH_USER@$SSH_HOST "cd $WORK_DIR && git pull origin $MAIN_BRANCH && ./deploy.sh"
-  only:
-    - $MAIN_BRANCH
+    - ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+    - ssh $SSH_USER@$SSH_HOST "cd $WORK_DIR && git pull origin $CI_COMMIT_BRANCH && ./deploy.sh"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "$MAIN_BRANCH"'
