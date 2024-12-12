@@ -37,7 +37,11 @@ backend-build:
 deploy:
   stage: deploy
   script:
-    - echo "Triggering deployment to Render via GitLab CI/CD..."
-    - curl -X POST -H "Authorization: Bearer $RENDER_API_TOKEN" https://api.render.com/deploy/some-endpoint
+    - echo "Triggering deployment to Linode VPS via GitLab CI/CD..."
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan $SSH_HOST >> ~/.ssh/known_hosts
+    - ssh $SSH_USER@$SSH_HOST "cd $WORK_DIR && git pull origin $MAIN_BRANCH && ./deploy.sh"
   only:
-    - main
+    - $MAIN_BRANCH
