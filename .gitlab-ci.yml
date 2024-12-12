@@ -47,9 +47,7 @@ deploy:
   image: docker:latest
   script:
     # Ensure SSH directory and decode SSH key
-    - mkdir -p ~/.ssh
-    - echo "$SSH_PRIVATE_KEY" | base64 -d | tr -d '\n' > ~/.ssh/id_rsa
-    - chmod 600 ~/.ssh/id_rsa
+    - mkdir -p ~/.ssh && echo "$SSH_PRIVATE_KEY" | base64 -d > ~/.ssh/id_rsa && chmod 0600 ~/.ssh/id_rsa    
     - chmod 700 ~/.ssh
 
     # Debugging SSH permissions
