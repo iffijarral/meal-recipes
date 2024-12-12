@@ -44,12 +44,12 @@ backend-build:
 # Deployment Step
 deploy:
   stage: deploy
-  image: alpine:latest
+  image: docker:latest
   script:
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
-    - ssh $SSH_USER@$SSH_HOST "cd $WORK_DIR && ./deploy.sh"
+    - ssh $SSH_USER@$SSH_HOST "cd $WORK_DIR && git pull origin main && docker-compose down && docker-compose up -d --build"
   only:
     - main
