@@ -6,7 +6,6 @@ stages:
 variables:
   FRONTEND_IMAGE: $CI_REGISTRY_IMAGE/frontend:latest
   BACKEND_IMAGE: $CI_REGISTRY_IMAGE/backend:latest
-  
 
 # Authenticate with the container registry
 before_script:
@@ -15,8 +14,12 @@ before_script:
 # Build and push the frontend image
 frontend-build:
   stage: build
+  image: docker:latest  # Use Docker's latest image
   services:
-    - docker:dind
+    - docker:dind  # Docker-in-Docker service
+  variables:
+    DOCKER_HOST: tcp://docker:2375/  # Configure Docker-in-Docker properly
+    DOCKER_TLS_CERTDIR: ""  # Disable TLS for Docker-in-Docker
   script:
     - docker build -t $FRONTEND_IMAGE ./frontend
     - docker push $FRONTEND_IMAGE
@@ -26,8 +29,12 @@ frontend-build:
 # Build and push the backend image
 backend-build:
   stage: build
+  image: docker:latest  # Use Docker's latest image
   services:
-    - docker:dind
+    - docker:dind  # Docker-in-Docker service
+  variables:
+    DOCKER_HOST: tcp://docker:2375/  # Configure Docker-in-Docker properly
+    DOCKER_TLS_CERTDIR: ""  # Disable TLS for Docker-in-Docker
   script:
     - docker build -t $BACKEND_IMAGE ./backend
     - docker push $BACKEND_IMAGE
@@ -37,10 +44,11 @@ backend-build:
 # Deploy step to Linode VPS
 deploy:
   stage: deploy
+  image: alpine:latest  # Use a minimal image for SSH operations
   script:
     - echo "Triggering deployment to Linode VPS via GitLab CI/CD..."
     - mkdir -p ~/.ssh
-    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
     - ssh $SSH_USER@$SSH_HOST "cd $WORK_DIR && git pull origin $CI_COMMIT_BRANCH && ./deploy.sh"
