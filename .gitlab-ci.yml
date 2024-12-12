@@ -7,19 +7,19 @@ variables:
   FRONTEND_IMAGE: $CI_REGISTRY_IMAGE/frontend:latest
   BACKEND_IMAGE: $CI_REGISTRY_IMAGE/backend:latest
 
-# Authenticate with the container registry
+# Authenticate with GitLab's container registry
 before_script:
-  - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin
+  - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" $CI_REGISTRY --password-stdin
 
 # Build and push the frontend image
 frontend-build:
   stage: build
-  image: docker:latest  # Use Docker's latest image
+  image: docker:latest
   services:
-    - docker:dind  # Docker-in-Docker service
+    - docker:dind
   variables:
-    DOCKER_HOST: tcp://docker:2375/  # Configure Docker-in-Docker properly
-    DOCKER_TLS_CERTDIR: ""  # Disable TLS for Docker-in-Docker
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
   script:
     - docker build -t $FRONTEND_IMAGE ./frontend
     - docker push $FRONTEND_IMAGE
@@ -29,28 +29,27 @@ frontend-build:
 # Build and push the backend image
 backend-build:
   stage: build
-  image: docker:latest  # Use Docker's latest image
+  image: docker:latest
   services:
-    - docker:dind  # Docker-in-Docker service
+    - docker:dind
   variables:
-    DOCKER_HOST: tcp://docker:2375/  # Configure Docker-in-Docker properly
-    DOCKER_TLS_CERTDIR: ""  # Disable TLS for Docker-in-Docker
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
   script:
     - docker build -t $BACKEND_IMAGE ./backend
     - docker push $BACKEND_IMAGE
   only:
     - main
 
-# Deploy step to Linode VPS
+# Deployment Step
 deploy:
   stage: deploy
-  image: alpine:latest  # Use a minimal image for SSH operations
+  image: alpine:latest
   script:
-    - echo "Triggering deployment to Linode VPS via GitLab CI/CD..."
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
-    - ssh $SSH_USER@$SSH_HOST "cd $WORK_DIR && git pull origin $CI_COMMIT_BRANCH && ./deploy.sh"
+    - ssh $SSH_USER@$SSH_HOST "cd $WORK_DIR && ./deploy.sh"
   rules:
     - if: '$CI_COMMIT_BRANCH == "$MAIN_BRANCH"'
