@@ -51,5 +51,5 @@ deploy:
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
     - ssh $SSH_USER@$SSH_HOST "cd $WORK_DIR && ./deploy.sh"
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "$MAIN_BRANCH"'
+  only:
+    - main
