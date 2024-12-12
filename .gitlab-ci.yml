@@ -46,18 +46,24 @@ deploy:
   stage: deploy
   image: docker:latest
   script:
-    # Ensure SSH directory and decode SSH key
-    - mkdir -p ~/.ssh && echo "$SSH_PRIVATE_KEY" | base64 -d > ~/.ssh/id_rsa && chmod 0600 ~/.ssh/id_rsa    
+    # Ensure SSH directory and decode SSH key securely
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" | base64 -d > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
     - chmod 700 ~/.ssh
 
-    # Debugging SSH permissions
+    # Debugging - Check the permissions and existence of the SSH key
     - ls -la ~/.ssh
     - cat ~/.ssh/id_rsa
 
-    # Allow host keys to avoid SSH prompts
+    # Ensure the host's SSH fingerprint is trusted
     - ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
 
-    # SSH into server
-    - ssh -vvv $SSH_USER@$SSH_HOST "mkdir -p $WORK_DIR && cd $WORK_DIR && git pull origin main && docker-compose down && docker-compose up -d --build"
+    # Debugging - Test SSH connection
+    - ssh -vvv $SSH_USER@$SSH_HOST
+
+    # Deploy services
+    - ssh $SSH_USER@$SSH_HOST "mkdir -p $WORK_DIR && cd $WORK_DIR && git pull origin main && docker-compose down && docker-compose up -d --build"
+
   only:
     - main
