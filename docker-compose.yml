@@ -5,9 +5,7 @@ services:
     build: ./backend
     container_name: backend
     ports:
-      - "4000:4000"     # Expose backend on port 4000
-    env_file:
-      - .env
+      - "4000:4000"     # Expose backend on port 4000    
     depends_on:
       - mongodb
     networks:
@@ -20,9 +18,7 @@ services:
     ports:
       - "5173:5173"     # Expose frontend on port 5173 the defalut port of vite dev server
     depends_on:
-      - backend         # Ensure backend is running before frontend
-    env_file:
-      - .env
+      - backend         # Ensure backend is running before frontend    
     volumes:
       - uploads:/app/uploads
     networks:
@@ -39,9 +35,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     networks:
-      - app-network
-    env_file:
-      - .env
+      - app-network    
   nginx:
     image: nginx:stable-alpine
     container_name: nginx                                                                                                                            
