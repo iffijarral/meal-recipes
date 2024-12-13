@@ -45,6 +45,8 @@ backend-build:
 deploy:
   stage: deploy
   image: docker:latest  
+  only:
+    - main
   script:
     # Copy CI/CD variables into .env file
     - cp $ENV_FILE .env
@@ -65,7 +67,19 @@ deploy:
     - ssh -vvv $SSH_USER@$SSH_HOST
 
     # Deploy services    
-    - ssh $SSH_USER@$SSH_HOST "mkdir -p $WORK_DIR && cd $WORK_DIR && git pull origin main && docker-compose down && docker-compose up -d --build"
-
-  only:
-    - main
+    - ssh $SSH_USER@$SSH_HOST "sh -c '
+        mkdir -p $WORK_DIR && cd $WORK_DIR && \
+        git pull origin main && \
+        echo \"VITE_BASE_URL=$VITE_BASE_URL\" > .env && \
+        echo \"MONGO_URI=$MONGO_URI\" >> .env && \
+        echo \"VITE_REACT_APP_GRAPHQL_URI=$VITE_REACT_APP_GRAPHQL_URI\" >> .env && \
+        echo \"JWT_SECRET=$JWT_SECRET\" >> .env && \
+        echo \"EMAIL_USER=$EMAIL_USER\" >> .env && \
+        echo \"EMAIL_PASS=$EMAIL_PASS\" >> .env && \
+        echo \"MONGO_INITDB_ROOT_USERNAME=$MONGO_INITDB_ROOT_USERNAME\" >> .env && \
+        echo \"MONGO_INITDB_ROOT_PASSWORD=$MONGO_INITDB_ROOT_PASSWORD\" >> .env && \
+        echo \"MONGO_USER=$MONGO_USER\" >> .env && \
+        echo \"MONGO_PASSWORD=$MONGO_PASSWORD\" >> .env && \
+        docker-compose down && \
+        docker-compose up -d --build
+      '"
