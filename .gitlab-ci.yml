@@ -39,6 +39,7 @@ backend-build:
   script:
     - docker build -t $BACKEND_IMAGE ./backend
     - docker push $BACKEND_IMAGE
+    - echo "email user ${EMAIL_USER}"
   only:
     - main
 
