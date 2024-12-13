@@ -47,9 +47,7 @@ deploy:
   image: docker:latest  
   only:
     - main
-  script:
-    # Copy CI/CD variables into .env file
-    - cp $ENV_FILE .env
+  script:    
     # Ensure SSH directory and decode SSH key securely
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" | base64 -d > ~/.ssh/id_rsa
