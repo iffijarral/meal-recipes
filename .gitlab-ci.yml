@@ -74,7 +74,7 @@ deploy:
     - ssh -vvv $SSH_USER@$SSH_HOST
 
     # Deploy services    
-    - ssh $SSH_USER@$SSH_HOST "bash -c 'mkdir -p $WORK_DIR && cd $WORK_DIR && git pull origin main && docker-compose down && docker-compose up -d --build'"
+    - ssh $SSH_USER@$SSH_HOST "mkdir -p $WORK_DIR && cd $WORK_DIR && git pull origin main && docker-compose down && docker-compose up -d --build"
 
   only:
     - main
