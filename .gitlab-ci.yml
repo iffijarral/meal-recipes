@@ -20,7 +20,11 @@ frontend-build:
     - docker:dind
   variables:
     DOCKER_HOST: tcp://docker:2375/
-    DOCKER_TLS_CERTDIR: ""    
+    DOCKER_TLS_CERTDIR: ""
+    VITE_BASE_URL: ${VITE_BASE_URL}
+    VITE_REACT_APP_GRAPHQL_URI: ${VITE_REACT_APP_GRAPHQL_URI}
+    JWT_SECRET: ${JWT_SECRET}
+
   script:
     - docker build -t $FRONTEND_IMAGE ./frontend
     - docker push $FRONTEND_IMAGE
@@ -35,7 +39,15 @@ backend-build:
     - docker:dind
   variables:
     DOCKER_HOST: tcp://docker:2375/
-    DOCKER_TLS_CERTDIR: ""    
+    DOCKER_TLS_CERTDIR: ""
+    EMAIL_USER: ${EMAIL_USER}
+    EMAIL_PASS: ${EMAIL_PASS}
+    MONGO_USER: ${MONGO_USER}
+    MONGO_PASSWORD: ${MONGO_PASSWORD}
+    JWT_SECRET: ${JWT_SECRET}
+    MONGO_URI: ${MONGO_URI}
+    VITE_BASE_URL: ${VITE_BASE_URL}
+
   script:
     - docker build -t $BACKEND_IMAGE ./backend
     - docker push $BACKEND_IMAGE
@@ -63,6 +75,7 @@ deploy:
     # Debugging - Test SSH connection
     - ssh -vvv $SSH_USER@$SSH_HOST       
     # Deploy services    
-    - ssh $SSH_USER@$SSH_HOST "mkdir -p $WORK_DIR && cd $WORK_DIR && git pull origin main && docker-compose down && docker-compose up -d --build"    
+    #- ssh $SSH_USER@$SSH_HOST "mkdir -p $WORK_DIR && cd $WORK_DIR && git pull origin main && docker-compose down && docker-compose up -d --build"    
+    - ssh $SSH_USER@$SSH_HOST "mkdir -p $WORK_DIR && cd $WORK_DIR && git pull origin main && export MONGO_INITDB_ROOT_USERNAME=$MONGO_INITDB_ROOT_USERNAME && export MONGO_INITDB_ROOT_PASSWORD=$MONGO_INITDB_ROOT_PASSWORD && docker-compose down && docker-compose up -d --build"
   only:
     - main
