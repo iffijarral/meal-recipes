@@ -44,19 +44,10 @@ backend-build:
 # Deployment Step
 deploy:
   stage: deploy
-  image: docker:latest
-  variables:
-    VITE_BASE_URL: $VITE_BASE_URL
-    MONGO_URI: $MONGO_URI
-    VITE_REACT_APP_GRAPHQL_URI: $VITE_REACT_APP_GRAPHQL_URI
-    JWT_SECRET: $JWT_SECRET
-    EMAIL_USER: $EMAIL_USER
-    EMAIL_PASS: $EMAIL_PASS
-    MONGO_INITDB_ROOT_USERNAME: $MONGO_INITDB_ROOT_USERNAME
-    MONGO_INITDB_ROOT_PASSWORD: $MONGO_INITDB_ROOT_PASSWORD
-    MONGO_USER: $MONGO_USER
-    MONGO_PASSWORD: $MONGO_PASSWORD
+  image: docker:latest  
   script:
+    # Copy CI/CD variables into .env file
+    cp $ENV_FILE .env
     # Ensure SSH directory and decode SSH key securely
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" | base64 -d > ~/.ssh/id_rsa

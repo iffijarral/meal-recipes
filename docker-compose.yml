@@ -5,37 +5,29 @@ services:
     build: ./backend
     container_name: backend
     ports:
-      - "4000:4000"     # Expose backend on port 4000    
+      - "4000:4000"     # Expose backend on port 4000
+    env_file:
+      - .env
     depends_on:
       - mongodb
     networks:
       - app-network
     volumes:
       - uploads:/app/uploads
-    environment:
-      - VITE_BASE_URL=${VITE_BASE_URL}
-      - JWT_SECRET=${JWT_SECRET}            
-      - EMAIL_USER=${EMAIL_USER}
-      - EMAIL_PASS=${EMAIL_PASS}
-      - MONGO_URI=${MONGO_URI}
-      - MONGO_USER=${MONGO_USER}
-      - MONGO_PASSWORD=${MONGO_PASSWORD}
   frontend:
     build: ./frontend
     container_name: frontend
     ports:
       - "5173:5173"     # Expose frontend on port 5173 the defalut port of vite dev server
     depends_on:
-      - backend         # Ensure backend is running before frontend    
+      - backend         # Ensure backend is running before frontend
+    env_file:
+      - .env
     volumes:
       - uploads:/app/uploads
     networks:
       - app-network
-    environment:
-      - VITE_BASE_URL=${VITE_BASE_URL}
-      - VITE_REACT_APP_GRAPHQL_URI=${VITE_REACT_APP_GRAPHQL_URI}
-      - JWT_SECRET=${JWT_SECRET}      
-      
+
   mongodb:
     image: mongo:latest
     container_name: mongodb
@@ -45,10 +37,11 @@ services:
       - mongo-data:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}       
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     networks:
       - app-network
-    
+    env_file:
+      - .env
   nginx:
     image: nginx:stable-alpine
     container_name: nginx                                                                                                                            
