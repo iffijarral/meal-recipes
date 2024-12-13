@@ -45,6 +45,17 @@ backend-build:
 deploy:
   stage: deploy
   image: docker:latest
+  variables:
+    VITE_BASE_URL: $VITE_BASE_URL
+    MONGO_URI: $MONGO_URI
+    VITE_REACT_APP_GRAPHQL_URI: $VITE_REACT_APP_GRAPHQL_URI
+    JWT_SECRET: $JWT_SECRET
+    EMAIL_USER: $EMAIL_USER
+    EMAIL_PASS: $EMAIL_PASS
+    MONGO_INITDB_ROOT_USERNAME: $MONGO_INITDB_ROOT_USERNAME
+    MONGO_INITDB_ROOT_PASSWORD: $MONGO_INITDB_ROOT_PASSWORD
+    MONGO_USER: $MONGO_USER
+    MONGO_PASSWORD: $MONGO_PASSWORD
   script:
     # Ensure SSH directory and decode SSH key securely
     - mkdir -p ~/.ssh
@@ -63,6 +74,7 @@ deploy:
     - ssh -vvv $SSH_USER@$SSH_HOST
 
     # Deploy services    
-    - ssh $SSH_USER@$SSH_HOST "bash -c 'mkdir -p $WORK_DIR && cd $WORK_DIR && export VITE_BASE_URL=$VITE_BASE_URL && export MONGO_URI=$MONGO_URI && export VITE_REACT_APP_GRAPHQL_URI=$VITE_REACT_APP_GRAPHQL_URI && export JWT_SECRET=$JWT_SECRET && export EMAIL_USER=$EMAIL_USER && export EMAIL_PASS=$EMAIL_PASS && export MONGO_INITDB_ROOT_USERNAME=$MONGO_INITDB_ROOT_USERNAME && export MONGO_INITDB_ROOT_PASSWORD=$MONGO_INITDB_ROOT_PASSWORD && export MONGO_USER=$MONGO_USER && export MONGO_PASSWORD=$MONGO_PASSWORD && git pull origin main && docker-compose down && docker-compose up -d --build'"
+    - ssh $SSH_USER@$SSH_HOST "bash -c 'mkdir -p $WORK_DIR && cd $WORK_DIR && git pull origin main && docker-compose down && docker-compose up -d --build'"
+
   only:
     - main
