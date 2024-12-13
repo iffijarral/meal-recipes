@@ -26,7 +26,7 @@ const NavBar = ({ onSearch }: NavBarProps) => {
     <HStack justifyContent="space-between">
       <HStack as="a" href="/" alignItems="center" gap={0}>
         <Logo />
-        <Text fontSize="3xl" fontWeight="bold">J.RECIPE</Text>
+        <Text fontSize="3xl" fontWeight="bold">J.RECIPES </Text>
       </HStack>
       <SearchBox onSearch={onSearch} />
       <HStack spacing={4} alignItems="center">

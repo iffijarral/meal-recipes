@@ -73,11 +73,24 @@ deploy:
     # Debugging - Test SSH connection
     - ssh -vvv $SSH_USER@$SSH_HOST
     # Securely copy the .env file to the remote server
-    - scp .env $SSH_USER@$SSH_HOST:$WORK_DIR/.env
-
-    - echo $WORK_DIR
+    #- scp .env $SSH_USER@$SSH_HOST:$WORK_DIR/.env    
     # Deploy services    
-    - ssh $SSH_USER@$SSH_HOST "mkdir -p $WORK_DIR && cd $WORK_DIR && git pull origin main && docker-compose down && docker-compose up -d --build"
-
+    #- ssh $SSH_USER@$SSH_HOST "mkdir -p $WORK_DIR && cd $WORK_DIR && git pull origin main && docker-compose down && docker-compose up -d --build"
+    - ssh $SSH_USER@$SSH_HOST "bash -c '
+        mkdir -p $WORK_DIR && cd $WORK_DIR && \
+        git pull origin main && \
+        export VITE_BASE_URL=$VITE_BASE_URL && \
+        export MONGO_URI=$MONGO_URI && \
+        export VITE_REACT_APP_GRAPHQL_URI=$VITE_REACT_APP_GRAPHQL_URI && \
+        export JWT_SECRET=$JWT_SECRET && \
+        export EMAIL_USER=$EMAIL_USER && \
+        export EMAIL_PASS=$EMAIL_PASS && \
+        export MONGO_INITDB_ROOT_USERNAME=$MONGO_INITDB_ROOT_USERNAME && \
+        export MONGO_INITDB_ROOT_PASSWORD=$MONGO_INITDB_ROOT_PASSWORD && \
+        export MONGO_USER=$MONGO_USER && \
+        export MONGO_PASSWORD=$MONGO_PASSWORD && \
+        docker-compose down && \
+        docker-compose up -d --build
+      '"
   only:
     - main
