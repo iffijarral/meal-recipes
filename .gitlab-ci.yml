@@ -45,9 +45,18 @@ backend-build:
 deploy:
   stage: deploy
   image: docker:latest  
-  only:
-    - main
-  script:    
+  script:
+    # Copy CI/CD variables into .env file
+    - echo "VITE_BASE_URL=$VITE_BASE_URL" > .env
+    - echo "MONGO_URI=$MONGO_URI" >> .env
+    - echo "VITE_REACT_APP_GRAPHQL_URI=$VITE_REACT_APP_GRAPHQL_URI" >> .env
+    - echo "JWT_SECRET=$JWT_SECRET" >> .env
+    - echo "EMAIL_USER=$EMAIL_USER" >> .env
+    - echo "EMAIL_PASS=$EMAIL_PASS" >> .env
+    - echo "MONGO_INITDB_ROOT_USERNAME=$MONGO_INITDB_ROOT_USERNAME" >> .env
+    - echo "MONGO_INITDB_ROOT_PASSWORD=$MONGO_INITDB_ROOT_PASSWORD" >> .env
+    - echo "MONGO_USER=$MONGO_USER" >> .env
+    - echo "MONGO_PASSWORD=$MONGO_PASSWORD" >> .env
     # Ensure SSH directory and decode SSH key securely
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" | base64 -d > ~/.ssh/id_rsa
@@ -63,26 +72,10 @@ deploy:
 
     # Debugging - Test SSH connection
     - ssh -vvv $SSH_USER@$SSH_HOST
-
+    # Securely copy the .env file to the remote server
+    - scp .env $SSH_USER@$SSH_HOST:$WORK_DIR/.env
     # Deploy services    
-    - ssh $SSH_USER@$SSH_HOST "bash -c '
-      mkdir -p $WORK_DIR && cd $WORK_DIR && \
-      git pull origin main && \
-      cat > .env <<EOF
-      VITE_BASE_URL=$VITE_BASE_URL
-      MONGO_URI=$MONGO_URI
-      VITE_REACT_APP_GRAPHQL_URI=$VITE_REACT_APP_GRAPHQL_URI
-      JWT_SECRET=$JWT_SECRET
-      EMAIL_USER=$EMAIL_USER
-      EMAIL_PASS=$EMAIL_PASS
-      MONGO_INITDB_ROOT_USERNAME=$MONGO_INITDB_ROOT_USERNAME
-      MONGO_INITDB_ROOT_PASSWORD=$MONGO_INITDB_ROOT_PASSWORD
-      MONGO_USER=$MONGO_USER
-      MONGO_PASSWORD=$MONGO_PASSWORD
-      EOF
-      docker-compose down && \
-      docker-compose up -d --build
-      '"
+    - ssh $SSH_USER@$SSH_HOST "mkdir -p $WORK_DIR && cd $WORK_DIR && git pull origin main && docker-compose down && docker-compose up -d --build"
 
-
-  
+  only:
+    - main
