@@ -13,13 +13,13 @@ services:
     volumes:
       - uploads:/app/uploads
     environment:
-      - VITE_BASE_URL
-      - JWT_SECRET            
-      - EMAIL_USER
-      - EMAIL_PASS
-      - MONGO_URI
-      - MONGO_USER
-      - MONGO_PASSWORD
+      - VITE_BASE_URL=${VITE_BASE_URL}
+      - JWT_SECRET=${JWT_SECRET}            
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_USER=${MONGO_USER}
+      - MONGO_PASSWORD=${MONGO_PASSWORD}
   frontend:
     build: ./frontend
     container_name: frontend
@@ -32,9 +32,9 @@ services:
     networks:
       - app-network
     environment:
-      - VITE_BASE_URL
-      - VITE_REACT_APP_GRAPHQL_URI
-      - JWT_SECRET      
+      - VITE_BASE_URL=${VITE_BASE_URL}
+      - VITE_REACT_APP_GRAPHQL_URI=${VITE_REACT_APP_GRAPHQL_URI}
+      - JWT_SECRET=${JWT_SECRET}      
       
   mongodb:
     image: mongo:latest
