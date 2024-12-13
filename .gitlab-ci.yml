@@ -62,7 +62,7 @@ deploy:
     - echo "$SSH_PRIVATE_KEY" | base64 -d > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - chmod 700 ~/.ssh
-
+    
     # Debugging - Check the permissions and existence of the SSH key
     - ls -la ~/.ssh
     - cat ~/.ssh/id_rsa
@@ -74,6 +74,8 @@ deploy:
     - ssh -vvv $SSH_USER@$SSH_HOST
     # Securely copy the .env file to the remote server
     - scp .env $SSH_USER@$SSH_HOST:$WORK_DIR/.env
+
+    - echo $WORK_DIR
     # Deploy services    
     - ssh $SSH_USER@$SSH_HOST "mkdir -p $WORK_DIR && cd $WORK_DIR && git pull origin main && docker-compose down && docker-compose up -d --build"
 
