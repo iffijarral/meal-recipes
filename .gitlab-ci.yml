@@ -14,11 +14,9 @@ before_script:
 # Build and push the frontend image
 frontend-build:
   stage: build
-  image: docker:20.10.7
+  image: docker:latest
   services:
-    - name: docker:20.10.7-dind
-      alias: docker
-      command: ["--privileged"]    
+    - docker:dind
   variables:
     DOCKER_HOST: tcp://docker:2375/
     DOCKER_TLS_CERTDIR: ""
@@ -31,12 +29,9 @@ frontend-build:
 # Build and push the backend image
 backend-build:
   stage: build
-  image: docker:20.10.7
+  image: docker:latest
   services:
-    - name: docker:20.10.7-dind
-      alias: docker
-      command: ["--privileged"]
-      
+    - docker:dind
   variables:
     DOCKER_HOST: tcp://docker:2375/
     DOCKER_TLS_CERTDIR: ""
@@ -51,7 +46,7 @@ backend-build:
 # Deployment Step
 deploy:
   stage: deploy
-  image: docker:20.10.7
+  image: docker:latest  
   script:    
     # Ensure SSH directory and decode SSH key securely
     - mkdir -p ~/.ssh

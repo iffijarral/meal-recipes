@@ -13,7 +13,7 @@ services:
     networks:
       - app-network
     volumes:
-      - uploads:/app/uploads   
+      - uploads:/app/uploads
   frontend:
     build: ./frontend
     container_name: frontend
