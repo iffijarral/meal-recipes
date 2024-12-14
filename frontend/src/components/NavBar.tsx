@@ -47,9 +47,7 @@ const NavBar = ({ onSearch }: NavBarProps) => {
       spacing={2}
       align="stretch"
       py={2}
-      px={4}
-      borderBottom="1px solid"
-      borderColor="gray.200"
+      px={4}      
     >
       {/* Top Header Section */}
       <HStack

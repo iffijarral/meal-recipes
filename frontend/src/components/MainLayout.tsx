@@ -35,7 +35,7 @@ const MainLayout = () => {
 
     return (
         <Box
-            maxWidth="1200px" // Set the maximum width for the entire layout
+            maxWidth="1400px" // Set the maximum width for the entire layout
             margin="0 auto"   // Center the content horizontally
             
         >
