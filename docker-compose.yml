@@ -13,9 +13,7 @@ services:
     networks:
       - app-network
     volumes:
-      - uploads:/app/uploads
-    environment:
-      - EMAIL_USER: ${EMAIL_USER}
+      - uploads:/app/uploads   
   frontend:
     build: ./frontend
     container_name: frontend
