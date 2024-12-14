@@ -35,10 +35,11 @@ backend-build:
   variables:
     DOCKER_HOST: tcp://docker:2375/
     DOCKER_TLS_CERTDIR: ""
-    
+    EMAIL_USER: ${EMAIL_USER}
   script:
     - docker build -t $BACKEND_IMAGE ./backend
     - docker push $BACKEND_IMAGE
+    - echo "email user ${EMAIL_USER}"
   only:
     - main
 
