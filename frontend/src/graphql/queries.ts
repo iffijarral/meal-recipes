@@ -19,6 +19,25 @@ export const GET_MEALS_BY_CATEGORY = gql`
   }
 `;
 
+export const GET_MEALS_BY_AREA = gql`
+  query MealsByArea($area: String!) {
+    mealsByArea(area: $area) {
+      id
+      name
+      category
+      tags
+      area
+      ingredients {
+        name
+        measure
+      }
+      youtubeLink
+      image
+      description
+    }
+  }
+`;
+
 export const GET_MEALS_BY_CATEGORY_USER = gql`
   query MealsByCategoryUser($category: String!, $userId: ID!) {
     mealsByCategoryUser(category: $category, userId: $userId) {

@@ -196,6 +196,35 @@ export const mealService = {
     }
 
   },
+
+  getMealsByArea: async (area: string) => {
+    try {
+      console.log('this is query area', area);
+      const meals = await Meal.find({ area }).populate('user');
+      if (meals.length === 0) {
+        throw new Error(`No meals found for area: ${area}`);
+      }
+      return meals.map((meal) => {
+        const user = transformUser(meal.user as IUserDocument);
+        return {
+          id: meal._id.toString(),
+          name: meal.name,
+          category: meal.category,
+          ingredients: meal.ingredients,
+          tags: meal.tags,
+          area: meal.area,
+          youtubeLink: meal.youtubeLink,
+          image: meal.image,
+          description: meal.description,
+          user
+        }
+      })
+    } catch (error) {
+      console.error("Error fetching meals by Area:", error);
+      throw new Error("Failed to fetch meals by Area");
+    }
+
+  },
   getMealsByCategoryUser: async (category: string, userId: string) => {
     try {
       const user = await User.findById(userId);

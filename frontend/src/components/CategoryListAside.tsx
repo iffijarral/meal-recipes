@@ -9,52 +9,60 @@ import {
   List,
   ListItem,
   Spinner,
-  Link
+  Link,
+  Text
 } from "@chakra-ui/react";
 import { ICategory } from "../interfaces/interfaces.js";
 import { GET_CATEGORIES } from "../graphql/queries.js";
 import AuthContext from "../context/AuthContext.js";
 
-const CategoryListAside = () => {
+interface Props{
+  onCategoryClick?: () => void;
+}
+
+const CategoryListAside = ({ onCategoryClick }: Props) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const navigate = useNavigate();
-
-  // Use context with proper type checking
   const authContext = useContext(AuthContext);
 
-  if (!authContext) {
-    throw new Error("AuthContext must be used within an AuthProvider");
-  }
+  if (!authContext) throw new Error("AuthContext must be used within an AuthProvider");
 
   const { selectedCategory, setSelectedCategory } = authContext;
+  const { data, error, loading } = useQuery(GET_CATEGORIES, { fetchPolicy: "network-only" });
 
-  const { data, error, loading } = useQuery(GET_CATEGORIES, { fetchPolicy: 'network-only' });
-
-  const displayedCategories: ICategory[] = isExpanded
+  const displayedCategories = isExpanded
     ? data?.categories || []
-    : data?.categories.slice(0, 5) || [];
+    : data?.categories?.slice(0, 5) || [];
 
   if (error) return null;
-
   if (loading) return <Spinner />;
 
-  const onSelectCategory = (category: ICategory) => {
+  const handleCategoryClick = (category: ICategory) => {
     setSelectedCategory(category);
+    authContext.setSelectedArea(null); // Clear area selection
+    if (onCategoryClick) onCategoryClick();
+    navigate("/");
   };
 
   return (
     <Box paddingTop={10}>
-      <Heading fontSize="xl">Categories</Heading>
+      <Text fontSize="lg" fontWeight="bold" px={4} mt={2}>
+        Categories
+      </Text>
       <List>
         {displayedCategories.map((category: ICategory) => (
           <ListItem key={category.idCategory} paddingY="5px">
-            <HStack>              
+            <HStack px={4}>
               <Button
                 variant="link"
                 fontSize="medium"
-                onClick={() => { onSelectCategory(category); }}
-                _hover={{ textDecoration: 'none', bg: 'blue.700' }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleCategoryClick(category);
+                }}
+                _hover={{ textDecoration: "none", bg: "blue.700" }}
                 colorScheme={
                   selectedCategory?.idCategory === category.idCategory
                     ? "teal"
@@ -66,7 +74,7 @@ const CategoryListAside = () => {
             </HStack>
           </ListItem>
         ))}
-        <Button onClick={() => setIsExpanded(!isExpanded)}>
+        <Button onClick={() => setIsExpanded(!isExpanded)} ml={4}>
           {isExpanded ? "Show less" : "Show more"}
         </Button>
       </List>

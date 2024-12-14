@@ -41,7 +41,7 @@ const SearchBox = ({ onSearch }: SearchProps) => {
   };  
 
   return (
-    <VStack as="form" onSubmit={handleSubmit} spacing={4} width="50%" alignItems="stretch">
+    <VStack as="form" onSubmit={handleSubmit} spacing={4} width="100%" alignItems="stretch">
       <FormControl isInvalid={inputError.length > 0}>
         <InputGroup size="md">
           <Input

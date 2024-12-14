@@ -3,7 +3,7 @@ import { useQuery } from "@apollo/client";
 import { SimpleGrid, Spinner, Text } from "@chakra-ui/react";
 import MealCard from "./MealCard.js";
 import { IMeal } from "../interfaces/interfaces.js";
-import { GET_MEALS_BY_CATEGORY } from "../graphql/queries.js";
+import { GET_MEALS_BY_AREA, GET_MEALS_BY_CATEGORY } from "../graphql/queries.js";
 import AuthContext from "../context/AuthContext.js";
 
 interface Props {
@@ -17,19 +17,27 @@ const MealGrid = ({ onSelectMeal }: Props) => {
         throw new Error("AuthContext must be used within an AuthProvider");
     }
 
-    const { selectedCategory, setSelectedCategory } = authContext;
+    const { selectedCategory, selectedArea } = authContext;
 
-    // Fetch meals by category
-    const { data: mealData, error: mealError, loading: mealLoading } = useQuery(GET_MEALS_BY_CATEGORY, {
-        variables: { category: selectedCategory?.strCategory },
-        skip: !selectedCategory, // Only fetch meals if a category is selected
-        fetchPolicy: "network-only",
-    });
+    // Fetch meals by area if `selectedArea` is set, otherwise by category
+    const { data: mealsData, error: mealsError, loading: mealsLoading } = useQuery(
+        selectedArea ? GET_MEALS_BY_AREA : GET_MEALS_BY_CATEGORY,
+        {
+            variables: selectedArea
+                ? { area: selectedArea.strArea }
+                : { category: selectedCategory?.strCategory },
+            skip: !selectedArea && !selectedCategory, // Skip if neither is set
+            fetchPolicy: "network-only",
+        }
+    );
 
-    const meals: IMeal[] = mealData?.mealsByCategory || [];
+    const meals: IMeal[] = mealsData?.mealsByArea || mealsData?.mealsByCategory || [];
 
-    if (mealLoading) return <Spinner size="xl" />;
-    if (mealError) return <Text>Error loading meals: {mealError.message}</Text>;
+    if (mealsLoading) return <Spinner size="xl" />;
+    
+
+    
+    if (mealsError) return <Text>Error loading meals: {mealsError.message}</Text>;
 
     return (
         <SimpleGrid
