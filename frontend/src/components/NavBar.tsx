@@ -47,7 +47,7 @@ const NavBar = ({ onSearch }: NavBarProps) => {
       spacing={2}
       align="stretch"
       py={2}
-      px={4}      
+      px={4}
     >
       {/* Top Header Section */}
       <HStack
@@ -79,7 +79,10 @@ const NavBar = ({ onSearch }: NavBarProps) => {
             />
             <MenuList>
               {user ? (
-                <MenuItem as={Link} to="/dashboard">Dashboard</MenuItem>
+                <>
+                  <MenuItem as={Link} to="/dashboard">Dashboard</MenuItem>
+                  <MenuItem as={Link} to="/logout">Logout</MenuItem>
+                </>
               ) : (
                 <>
                   <MenuItem as={Link} to="/login">Login</MenuItem>
@@ -113,7 +116,7 @@ const NavBar = ({ onSearch }: NavBarProps) => {
           <DrawerContent>
             <DrawerCloseButton />
             <Text fontSize="lg" fontWeight="bold" mt={4} px={4}>
-            {authContext?.user ? "Dashboard" : "Authentication" }
+              {authContext?.user ? "Dashboard" : "Authentication"}
             </Text>
             <VStack align="flex-start" px={4}>
               {authContext?.user ? (
@@ -130,9 +133,9 @@ const NavBar = ({ onSearch }: NavBarProps) => {
                   </Text>
                 </>
               )}
-            </VStack>                        
+            </VStack>
             <CategoryListAside onCategoryClick={onClose} />
-            <AreaListAside onAreaClick={onClose} />                        
+            <AreaListAside onAreaClick={onClose} />
           </DrawerContent>
         </Drawer>
       </HStack>

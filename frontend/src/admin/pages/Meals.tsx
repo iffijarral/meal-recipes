@@ -32,8 +32,7 @@ const Meals = () => {
         }
     }, [user, fetchCategories]);
 
-    useEffect(() => {
-        console.log('inside setSelected Category useEffect');
+    useEffect(() => {        
         if (categoriesData?.categoriesByUser?.length > 0 && !selectedCategory) {
             setSelectedCategory(categoriesData.categoriesByUser[0]);
         }
@@ -46,8 +45,7 @@ const Meals = () => {
         }
     }, [mealsData]);
 
-    useEffect(() => {
-        console.log('inside location useeffect');
+    useEffect(() => {        
         if (location.state?.newMeal) {
             const newMeal = location.state.newMeal;
     
@@ -78,8 +76,7 @@ const Meals = () => {
             } else {
                 console.warn("Refetch skipped: No category available.");
             }
-    
-            console.log("New meal added:", newMeal);
+                
             // Clear the navigation state after handling it
             navigate(location.pathname, { replace: true, state: {} });
         }
@@ -99,6 +96,7 @@ const Meals = () => {
         const category = categoriesData?.categoriesByUser.find((cat: ICategory) => cat.strCategory === categorySelect);
 
         if (category) {
+            setSelectedCategory(category);
             refetch({
                 category: category.strCategory,
                 userId: user?.id
