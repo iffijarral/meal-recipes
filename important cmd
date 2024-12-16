@@ -1,0 +1,5 @@
+git reset --hard
+git clean -fd
+git pul
+
+docker exec -it mongodb mongosh --username iffi --password @Tabella1122 --authenticationDatabase admin

@@ -13,6 +13,12 @@ type AuthPayload {
   user: User!
 }
 
+type DeleteUserResponse { 
+  success: Boolean! 
+  message: String 
+  userId: ID 
+} 
+
 input UserInput {
   name: String!
   email: String!
@@ -21,6 +27,12 @@ input UserInput {
   role: String!
   isActive: Boolean!
   isVerified: Boolean!
+}
+
+input UserUpdateInput {
+  name: String!
+  email: String!
+  isActive: Boolean!
 }
 
 input LoginInput {
@@ -35,6 +47,7 @@ extend type Query {
 
 extend type Mutation {
   signup(input: UserInput!): User
-
   login(input: LoginInput!): AuthPayload!
+  updateUser(id: ID, input: UserUpdateInput): User
+  deleteUser(id: ID!): DeleteUserResponse! 
 }

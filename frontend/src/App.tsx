@@ -15,6 +15,9 @@ import AdminHome from "./admin/pages/AdminHome.js";
 import Meals from "./admin/pages/Meals.js";
 import MealForm from "./admin/components/MealForm.js";
 import MainLayout from "./components/MainLayout.js";
+import UserList from "./admin/components/UserList.js";
+import ForgotPassword from "./pages/ForgotPassword.js";
+import UpdateUser from "./admin/components/UpdateUser.js";
 
 
 
@@ -43,6 +46,14 @@ const App: React.FC = () => (
             </AuthRedirect>
           }
         />
+        <Route
+          path="/forgot-password"
+          element={
+            <AuthRedirect>
+              <ForgotPassword />
+            </AuthRedirect>
+          }
+        />
         <Route path="/verify-email-success" element={<VerifyEmailSuccess />} />
         <Route path="/verify-email-failed" element={<VerifyEmailFailed />} />
 
@@ -53,6 +64,8 @@ const App: React.FC = () => (
             <Route path="meals" element={<Meals />} />
             <Route path="new-meal" element={<MealForm />} />
             <Route path="edit-meal/:mealId" element={<MealForm />} />
+            <Route path="users" element={<UserList />} />
+            <Route path="edit-user/:userId" element={<UpdateUser />} />
           </Route>
         </Route>
 

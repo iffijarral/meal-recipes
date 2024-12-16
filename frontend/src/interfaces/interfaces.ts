@@ -50,3 +50,8 @@ export interface IFormData {
     password: string;
     confirmPassword?: string;    
 }
+export interface IUserUpdateFormData {
+    name: string;
+    email: string;
+    isActive: boolean;
+}

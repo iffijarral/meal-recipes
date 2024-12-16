@@ -45,6 +45,11 @@ export interface IUserInput {
     isActive: boolean
     isVerified: boolean
 }
+export interface IUserUpdateInput {
+    name: string
+    email: string    
+    isActive: boolean    
+}
 export interface ILoginInput {
     email: string;
     password: string;

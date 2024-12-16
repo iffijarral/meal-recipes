@@ -57,6 +57,34 @@ export const DELETE_MEAL = gql`
   }
 `;
 
+export const UPDATE_USER_MUTATION = gql`
+  mutation UpdateUser($id: ID!, $input: UserUpdateInput!) {
+    updateUser(id: $id, input: $input) {
+      id
+      name
+    }
+  }
+`;
+
+export const DELETE_USER = gql`
+  mutation DeleteUser($id: ID!) {
+    deleteUser(id: $id) {
+      success
+      message
+      userId
+    }
+  }
+`;
+
+export const FORGOT_PASSWORD_MUTATION = gql`
+mutation ForgotPassword($email: String!) {
+  forgotPassword(email: $email) {
+    success
+    message    
+  }
+}
+`;
+
 export const UPLOAD_IMAGE = gql`
   mutation UploadImage($image: Upload!) {
     uploadImage(image: $image) {

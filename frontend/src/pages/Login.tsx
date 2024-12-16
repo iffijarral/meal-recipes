@@ -31,7 +31,9 @@ import { getErrorMessage } from "../utils/validation.js";
 const Login = () => {
   const [formData, setFormData] = useState<IFormData>({ email: '', password: '' });
   const [errors, setErrors] = useState<ValidationErrorItem[]>([]);
-  const [login, { data, loading, error }] = useMutation(LOGIN_MUTATION);
+  const [login, { data, loading, error }] = useMutation(LOGIN_MUTATION, {
+    fetchPolicy: "no-cache"
+  });
 
   const { loginContext } = useContext(AuthContext)!;
 
@@ -56,6 +58,7 @@ const Login = () => {
     }
 
     try {
+      console.log('before login request');
       const { data } = await login({ variables: {input: formData } });
       console.log('data in login page', data);
       loginContext(data.login.token, data.login.user);
@@ -80,7 +83,7 @@ const Login = () => {
       bg={useColorModeValue("gray.50", "gray.800")}
     >
       <Box
-        maxW="sm"
+        maxW="md"
         w="full"
         p={6}
         borderRadius="md"
@@ -108,7 +111,7 @@ const Login = () => {
           </Button>
 
           <Box width="100%" textAlign="left">
-            <Button variant="link" colorScheme="blue" onClick={() => navigate("/signup")}>
+            <Button variant="link" colorScheme="blue" onClick={() => navigate("/forgot-password")}>
               Forgot Password
             </Button>
           </Box>

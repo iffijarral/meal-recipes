@@ -138,6 +138,17 @@ export const GET_AREAS = gql`
   }
 `;
 
+export const GET_USERS = gql`
+  query GetUsers {
+    users {     
+      id 
+      name
+      email
+      isVerified
+    }
+  }
+`;
+
 export const GET_USER_BY_ID = gql`
   query GetUserById($id: ID!) {
     user(id: $id) {
@@ -145,6 +156,7 @@ export const GET_USER_BY_ID = gql`
       name
       email
       role
+      isActive
     }
   }
 `;

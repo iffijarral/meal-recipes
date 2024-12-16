@@ -85,7 +85,7 @@ const Signup = () => {
       bg={useColorModeValue("gray.50", "gray.800")}
     >
       <Box
-        maxW="sm"
+        maxW="md"
         w="full"
         p={6}
         borderRadius="md"
