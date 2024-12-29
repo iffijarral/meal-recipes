@@ -16,6 +16,7 @@ import {
     AlertDescription,
     Spinner,
     FormErrorMessage,
+    Switch,
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { useMutation, useQuery } from "@apollo/client";
@@ -41,6 +42,7 @@ const MealForm = () => {
     const [description, setDescription] = useState("");
     const [file, setFile] = useState<File | null>(null);
     const [youtubeLink, setYoutubeLink] = useState("");
+    const [isActive, setIsActive] = useState(true);
     const [errors, setErrors] = useState<ValidationErrorItem[]>([]);
 
     const { mealId } = useParams(); // When to use for edit
@@ -50,9 +52,9 @@ const MealForm = () => {
 
     const { user } = useContext(AuthContext)!;
 
-    const [addMeal, { loading, error, data }] = useMutation(ADD_MEAL_MUTATION, {        
+    const [addMeal, { loading, error, data }] = useMutation(ADD_MEAL_MUTATION, {
         onCompleted: (data) => {
-            console.log('Meal added successfully:', data);            
+            console.log('Meal added successfully:', data);
             navigate("/dashboard/meals", { state: { newMeal: data.addMeal } });
         },
         onError: (error) => {
@@ -85,6 +87,7 @@ const MealForm = () => {
             setArea(meal.area || "");
             setDescription(meal.description || "");
             setYoutubeLink(meal.youtubeLink || "");
+            setIsActive(meal.isActive);
         }
     }, [editMealData, mealId]);
 
@@ -108,7 +111,7 @@ const MealForm = () => {
         if (e.target.files && e.target.files[0]) {
             setFile(e.target.files[0]);
         }
-    };
+    };  
 
     const resetForm = () => {
         setName("");
@@ -162,6 +165,7 @@ const MealForm = () => {
             description,
             youtubeLink,
             userId: user?.id || "",
+            isActive,
             ...(imageUrl && { image: imageUrl }) // Conditionally include the image property
         };
 
@@ -372,7 +376,16 @@ const MealForm = () => {
                         />
                         <FormErrorMessage>{getErrorMessage(errors, "youtubeLink")}</FormErrorMessage>
                     </FormControl>
-
+                    <FormControl display="flex" alignItems="center">
+                        <FormLabel htmlFor="is-active" mb="0">
+                            Is Active
+                        </FormLabel>
+                        <Switch
+                            id="is-active"
+                            isChecked={isActive}
+                            onChange={(e) => setIsActive(e.target.checked)}
+                        />
+                    </FormControl>
                     <Button
                         type="submit"
                         colorScheme="blue"

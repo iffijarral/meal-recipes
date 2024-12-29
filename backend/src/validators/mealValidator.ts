@@ -74,6 +74,11 @@ export const mealSchema = (isUpdate = false) => Joi.object({
       "string.empty": "userId is required.",
       "any.required": "userId is required.",
     }),
+  isActive: Joi.boolean()
+    .optional() // Making isActive optional
+    .messages({
+      "boolean.base": "isActive must be a boolean value.",
+    }),
 }).or("category", "newCategory").messages({
   "object.missing": "Please select a category or provide a new category.",
 });

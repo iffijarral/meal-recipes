@@ -22,12 +22,12 @@ import UpdateUser from "./admin/components/UpdateUser.js";
 
 
 const App: React.FC = () => (
-  <AuthProvider>
-    <Router>
+  <Router>
+    <AuthProvider>
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<MainLayout />}>
-          <Route index element={<Home />} /> {/* Default child */}          
+          <Route index element={<Home />} /> {/* Default child */}
         </Route>
         <Route path="/" element={<Home />} />
         <Route
@@ -73,8 +73,8 @@ const App: React.FC = () => (
         <Route path="*" element={<NotFound />} />
         <Route path="/logout" element={<Logout />} />
       </Routes>
-    </Router>
-  </AuthProvider>
+    </AuthProvider>
+  </Router>
 
 );
 

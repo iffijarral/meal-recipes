@@ -35,7 +35,7 @@ const Login = () => {
     fetchPolicy: "no-cache"
   });
 
-  const { loginContext } = useContext(AuthContext)!;
+  const { userContext } = useContext(AuthContext)!;
 
   const navigate = useNavigate();
 
@@ -57,13 +57,13 @@ const Login = () => {
       return;
     }
 
-    try {
-      console.log('before login request');
+    try {      
       const { data } = await login({ variables: {input: formData } });
-      console.log('data in login page', data);
-      loginContext(data.login.token, data.login.user);
+      
+      userContext(data.login.user);
+      
       navigate('/dashboard');
-      console.log('Login result:', data);
+      
     } catch (error) {
       if (error instanceof Error) {
         console.error('Login error:', error.message);

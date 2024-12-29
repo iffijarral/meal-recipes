@@ -1,70 +1,66 @@
 import express, { Request, Response } from "express";
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { ApolloServer } from '@apollo/server';
 import http from "http";
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
-import { buildSubgraphSchema } from '@apollo/subgraph'; // Use if part of federation
 import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs'; // Middleware for file uploads
 import { connectDatabase } from '../config/database.js'; // Your database connection
 import { resolvers } from "../resolvers/index.js"; // Your GraphQL schema definitions
 import { typeDefs } from "../schemas/index.js";
-// import { resolvers } from '../resolvers/index.js'; // Your resolvers
-// import { typeDefs, resolvers } from "../schema.js";
 import bodyParser from "body-parser";
 import path from 'path';
+import authMiddleware from '../middleware/auth.js'
+import { IUser, MyContext } from "../interfaces/interfaces.js";
 
-// Optional logging utilities
-// import { logger } from '../utils/logger.js';
-// import expressWinston from 'express-winston';
-console.log('Resolvers:', JSON.stringify(resolvers, null, 2));
+
+
+
 const createServer = async () => {
   const app = express();
-  const httpServer = http.createServer(app);
-  // Enable CORS
-  // app.use(cors());
-
-  // File Upload Middleware (this must come before Apollo middleware)
- 
-
-  // Parse incoming JSON
-  // app.use(express.json());
-
-  // Logging middleware (optional)
-  // app.use(
-  //   expressWinston.logger({
-  //     winstonInstance: logger,
-  //     meta: true,
-  //     msg: "HTTP {{req.method}} {{req.url}}",
-  //     expressFormat: true,
-  //     colorize: false,
-  //   })
-  // );
+  const httpServer = http.createServer(app);  
 
   // Database connection
   await connectDatabase();
 
+  // Cookie middleware
+  app.use(cookieParser());
+
+  
+
   // Initialize Apollo Server
-  const server = new ApolloServer({
-    csrfPrevention: false,
+  const server = new ApolloServer<MyContext>({
+    csrfPrevention: true,
     typeDefs,
     resolvers,
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],    
   });
 
   // Start Apollo Server
-  await server.start();
+  await server.start(); 
+
+  // auth middleware
+  app.use(authMiddleware);
 
   // Apply Apollo middleware
   app.use(
     "/api/graphql",
-    cors<Request>(), // Add generic typing to `cors` if needed
+    cors<Request>({
+      origin: 'http://medborgerskabsprove.dk',
+      methods: ['GET', 'POST', 'PUT', 'DELETE'],
+      credentials: true,
+    }), // Add generic typing to `cors` if needed      
     bodyParser.json(),
-    graphqlUploadExpress(), // Middleware for file uploads
-    expressMiddleware(server, {
-      context: async ({ req }: { req: Request }) => ({
-        token: req.headers.token, // Access token from headers
-      }),
+    // graphqlUploadExpress(), // Middleware for file uploads
+    expressMiddleware(server, {      
+      context: async ({ req, res }: { req: Request, res: Response }): Promise<MyContext> => {        
+        return {        
+          req,
+          res,
+          user: req.user as IUser,
+        };
+      },
     })
   );
 

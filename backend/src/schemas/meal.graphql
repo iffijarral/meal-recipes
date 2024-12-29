@@ -36,6 +36,7 @@ type Meal {
   image: String
   description: String
   user: User!
+  isActive: Boolean
 }
 
  type Image {    
@@ -57,6 +58,7 @@ input MealInput {
   image: String
   description: String
   userId: ID
+  isActive: Boolean
 }
 
 type DeleteMealResponse {

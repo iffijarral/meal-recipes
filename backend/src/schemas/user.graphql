@@ -8,8 +8,8 @@ type User {
   isVerified: Boolean!
 }
 
-type AuthPayload {
-  token: String!
+type AuthPayload {  
+  success: Boolean
   user: User!
 }
 
@@ -40,7 +40,13 @@ input LoginInput {
   password: String!   # Password is required
 }
 
+type LogoutResponse {
+  success: Boolean!
+  user: User!
+}
+
 extend type Query {
+  userInfo: User!
   user(id: ID!): User
   users(limit: Int, offset: Int): [User!]!
 }
@@ -48,6 +54,7 @@ extend type Query {
 extend type Mutation {
   signup(input: UserInput!): User
   login(input: LoginInput!): AuthPayload!
+  logout: LogoutResponse!
   updateUser(id: ID, input: UserUpdateInput): User
   deleteUser(id: ID!): DeleteUserResponse! 
 }

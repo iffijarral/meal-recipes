@@ -58,7 +58,8 @@ export const mealService = {
         youtubeLink: updatedMeal.youtubeLink,
         image: updatedMeal.image,
         description: updatedMeal.description,
-        user: user
+        user: user,
+        isActive: updatedMeal.isActive
       }
 
     } catch (error) {
@@ -125,7 +126,8 @@ export const mealService = {
         youtubeLink: meal.youtubeLink,
         image: meal.image,
         description: meal.description,
-        user: user
+        user: user,
+        isActive: meal.isActive
       }
     } catch (error) {
       console.error("Error fetching meals by Id:", error);
@@ -161,7 +163,8 @@ export const mealService = {
         youtubeLink: meal.youtubeLink,
         image: meal.image,
         description: meal.description,
-        user: user
+        user: user,
+        isActive: meal.isActive
       }
     } catch (error) {
       console.error("Error fetching meals by name:", error);
@@ -171,7 +174,7 @@ export const mealService = {
   // Fetch meal by category
   getMealsByCategory: async (category: string) => {
     try {
-      const meals = await Meal.find({ category }).populate('user');
+      const meals = await Meal.find({ category, isActive: true }).populate('user');
       if (meals.length === 0) {
         throw new Error(`No meals found for category: ${category}`);
       }
@@ -187,7 +190,8 @@ export const mealService = {
           youtubeLink: meal.youtubeLink,
           image: meal.image,
           description: meal.description,
-          user
+          user,
+          isActive: meal.isActive
         }
       })
     } catch (error) {
@@ -200,7 +204,7 @@ export const mealService = {
   getMealsByArea: async (area: string) => {
     try {
       console.log('this is query area', area);
-      const meals = await Meal.find({ area }).populate('user');
+      const meals = await Meal.find({ area, isActive: true }).populate('user');
       if (meals.length === 0) {
         throw new Error(`No meals found for area: ${area}`);
       }
@@ -216,7 +220,8 @@ export const mealService = {
           youtubeLink: meal.youtubeLink,
           image: meal.image,
           description: meal.description,
-          user
+          user,
+          isActive: meal.isActive
         }
       })
     } catch (error) {
@@ -259,7 +264,8 @@ export const mealService = {
           youtubeLink: meal.youtubeLink,
           image: meal.image,
           description: meal.description,
-          user
+          user,
+          isActive: meal.isActive
         }
       })
     } catch (error) {
@@ -286,7 +292,8 @@ export const mealService = {
           youtubeLink: meal.youtubeLink,
           image: meal.image,
           description: meal.description,
-          user
+          user,
+          isActive: meal.isActive
         }
       })
 

@@ -15,6 +15,7 @@ export const GET_MEALS_BY_CATEGORY = gql`
       youtubeLink
       image
       description
+      isActive
     }
   }
 `;
@@ -34,6 +35,7 @@ export const GET_MEALS_BY_AREA = gql`
       youtubeLink
       image
       description
+      isActive
     }
   }
 `;
@@ -53,6 +55,7 @@ export const GET_MEALS_BY_CATEGORY_USER = gql`
       youtubeLink
       image
       description
+      isActive
     }
   }
 `;
@@ -72,6 +75,7 @@ export const GET_MEAL_BY_NAME = gql`
       area
       tags
       youtubeLink
+      isActive
     }
   }
 `;
@@ -90,6 +94,7 @@ export const GET_MEAL_DETAILS = gql`
       area
       tags
       youtubeLink
+      isActive
     }
   }
 `;
@@ -152,6 +157,18 @@ export const GET_USERS = gql`
 export const GET_USER_BY_ID = gql`
   query GetUserById($id: ID!) {
     user(id: $id) {
+      id
+      name
+      email
+      role
+      isActive
+    }
+  }
+`;
+
+export const GET_USER_INFO = gql`
+  query GetUserInfo {
+    userInfo {
       id
       name
       email

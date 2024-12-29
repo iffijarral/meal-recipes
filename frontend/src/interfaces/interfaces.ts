@@ -32,6 +32,7 @@ export interface IMeal {
     image: string;
     description: string;
     user: IUser;
+    isActive: boolean;
 }
 export interface IMealInput {
     name: string;
@@ -43,6 +44,7 @@ export interface IMealInput {
     image: string;
     description: string;
     userId: string; // Instead of user, we use userId for input
+    isActive: boolean;
 }
 export interface IFormData {
     name?: string;

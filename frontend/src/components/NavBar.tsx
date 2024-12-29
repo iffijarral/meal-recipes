@@ -31,13 +31,10 @@ interface NavBarProps {
 }
 
 const NavBar = ({ onSearch }: NavBarProps) => {
-  const authContext = useContext(AuthContext);
+  
+  const { user, logout, loading: userLoading } = useContext(AuthContext)!;   
 
-  if (!authContext) {
-    throw new Error("AuthContext must be used within an AuthProvider");
-  }
-
-  const { user } = authContext;
+  
   const userName = user?.name || "U";
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -81,7 +78,7 @@ const NavBar = ({ onSearch }: NavBarProps) => {
               {user ? (
                 <>
                   <MenuItem as={Link} to="/dashboard">Dashboard</MenuItem>
-                  <MenuItem as={Link} to="/logout">Logout</MenuItem>
+                  <MenuItem as={Link} onClick={logout}>Logout</MenuItem> 
                 </>
               ) : (
                 <>
@@ -116,10 +113,10 @@ const NavBar = ({ onSearch }: NavBarProps) => {
           <DrawerContent>
             <DrawerCloseButton />
             <Text fontSize="lg" fontWeight="bold" mt={4} px={4}>
-              {authContext?.user ? "Dashboard" : "Authentication"}
+              {user ? "Dashboard" : "Authentication"}
             </Text>
             <VStack align="flex-start" px={4}>
-              {authContext?.user ? (
+              {user ? (
                 <Text mb={2}>
                   <Link to="/dashboard">Dashboard</Link>
                 </Text>

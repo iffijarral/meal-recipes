@@ -2,8 +2,9 @@ import path from 'path';
 import fs from 'fs';
 import GraphQLUpload from "graphql-upload/GraphQLUpload.mjs";
 import { FileUpload } from "graphql-upload/processRequest.mjs";
-import { IArea, ICategory, Image, IMeal, IMealInput } from '../interfaces/interfaces.js';
+import { IArea, ICategory, Image, IMeal, IMealInput, IUser } from '../interfaces/interfaces.js';
 import { mealService } from '../services/mealService.js';
+import { checkPermissionMutation } from '../utils/checkPermission.js';
 
 
 // Deriving the __dirname equivalent from import.meta.url
@@ -154,7 +155,16 @@ export const mealResolvers = {
 
   // Mutation resolver to handle file uploads
   Mutation: {
-    addMeal: async (_: any, { input }: { input:IMealInput }) => {
+    addMeal: async (_: any, { input }: { input:IMealInput }, context: { user: IUser }) => {
+
+      const { user } = context;          
+
+      if (!user) {
+        throw new Error('Not authenticated');
+      }
+
+      checkPermissionMutation('addMeal', user);
+
       try {
         return await mealService.createMeal(input);
       } catch (error) {
@@ -167,7 +177,17 @@ export const mealResolvers = {
         }
       }
     },
-    updateMeal: async (_: any, { id, input }: { id: string, input: IMealInput }): Promise<IMeal | null > => {
+    updateMeal: async (_: any, { id, input }: { id: string, input: IMealInput }, context: { user: IUser }): Promise<IMeal | null > => {
+
+
+      const { user } = context;          
+
+      if (!user) {
+        throw new Error('Not authenticated');
+      }
+
+      checkPermissionMutation('updateMeal', user);
+
       try {
         return await mealService.updateMeal(id, input);
       } catch (error) {
@@ -180,7 +200,16 @@ export const mealResolvers = {
         }
       }
     },
-    deleteMeal: async (_: any, { id }: { id: string }): Promise<{success: boolean, message: string, mealId: string} | {}> => {
+    deleteMeal: async (_: any, { id }: { id: string }, context: { user: IUser }): Promise<{success: boolean, message: string, mealId: string} | {}> => {
+      
+      const { user } = context;          
+
+      if (!user) {
+        throw new Error('Not authenticated');
+      }
+
+      checkPermissionMutation('deleteMeal', user);
+      
       try {
         return await mealService.deleteMeal(id);
       } catch (error) {
@@ -196,8 +225,17 @@ export const mealResolvers = {
     uploadImage: async (
       _: unknown,
       { image }: { image: Promise<FileUpload> } // Arguments with typing
+      , context: { user: IUser }
     ): Promise<Image> => {
       
+      const { user } = context;
+
+      if (!user) {
+        throw new Error('Not authenticated');
+      }
+
+      checkPermissionMutation('uploadImage', user);
+
       try { 
         const uploadedImage = await mealService.uploadImage(image);
         await mealService.generateThumbnail(uploadedImage.filename);

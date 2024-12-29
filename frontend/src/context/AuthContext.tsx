@@ -1,12 +1,14 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { ICategory, IArea, IUser } from '../interfaces/interfaces.js';
-import { useLazyQuery } from '@apollo/client';
-import { GET_USER_BY_ID } from '../graphql/queries.js';
+import { useLazyQuery, useMutation } from '@apollo/client';
+import { GET_USER_BY_ID, GET_USER_INFO } from '../graphql/queries.js';
+import { LOGOUT_MUTATION } from '../graphql/mutations.js';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   user: IUser | null;
-  loginContext: (token: string, user: IUser) => void;
+  userContext: (user: IUser | null) => void;
   logout: () => void;
   selectedCategory: ICategory | null;
   setSelectedCategory: (category: ICategory | null) => void;
@@ -26,51 +28,47 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [selectedCategory, setSelectedCategory] = useState<ICategory | null>(null);
   const [selectedArea, setSelectedArea] = useState<IArea | null>(null);
   const [loading, setLoading] = useState(true);
+  const [logoutMutation, { data: dataMutation, loading: loadingMutation, error: errorMutation }] = useMutation(LOGOUT_MUTATION);
 
-  const [fetchUserById, { data, error }] = useLazyQuery(GET_USER_BY_ID);
+  const [userInfo, { data, error }] = useLazyQuery(GET_USER_INFO);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const { userId }: { userId: string } = jwtDecode(token);
+  const navigate = useNavigate();
 
-        // Fetch the user from GraphQL
-        fetchUserById({ variables: { id: userId } })
-          .then(() => {
-            if (data) {
-              console.log('user', data);
-              setUser(data.user); // Update context with the fetched user
-            }
-            if (error) {
-              console.error("Failed to fetch user:", error);
-              localStorage.removeItem("token"); // Remove invalid token
-            }
-          })
-          .finally(() => setLoading(false));                
-
-      } catch (error) {
-        console.error('Failed to decode token:', error);
-        localStorage.removeItem('token'); // Remove invalid token
-        setLoading(false);
+  useEffect(() => {    
+    userInfo().then(({ data }) => {
+      
+      if (data?.userInfo) {        
+        setUser(data.userInfo);
       }
-    } else {
-      setLoading(false);
-    }
-  }, [fetchUserById, data, error]);
+    }).catch((error) => {
+      console.error("Failed to fetch user:", error);
+      setUser(null); // Clear user on error
+    }).finally(() => setLoading(false));
+  }, [userInfo]);
 
-  const loginContext = (token: string, user: IUser) => {
-    localStorage.setItem('token', token);
+  const userContext = (user: IUser | null) => {
     setUser(user);
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
+  const logout = async () => {
+    try {
+      logoutMutation().then((response) => {
+        console.log('Logout response:', response);
+        setUser(null);
+        navigate('/');
+      }).catch((err) => {
+        console.error('Logout error:', err || errorMutation);
+      }).finally(() => {
+        console.log('Logout');
+      });
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, loginContext, logout, selectedCategory, setSelectedCategory, selectedArea, setSelectedArea }}>
+    <AuthContext.Provider value={{ user, loading, userContext, logout, selectedCategory, setSelectedCategory, selectedArea, setSelectedArea }}>
       {children}
     </AuthContext.Provider>
   );

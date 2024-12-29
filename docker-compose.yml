@@ -46,7 +46,7 @@ services:
     image: nginx:stable-alpine
     container_name: nginx                                                                                                                            
     volumes:                                                                                                                                              
-      - ./nginx-config:/etc/nginx/conf.d
+      - ./nginx-config:/etc/nginx/conf.d      
       - uploads:/app/uploads                                                                                                                    
     ports:                                                                                                                                                
       - 80:80

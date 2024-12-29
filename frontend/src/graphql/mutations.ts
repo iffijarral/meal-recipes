@@ -18,7 +18,7 @@ export const SIGNUP_MUTATION = gql`
 export const LOGIN_MUTATION = gql`
   mutation Login($input: LoginInput!) {
     login(input: $input) {
-      token
+      success
       user {
         id
         name
@@ -89,6 +89,13 @@ export const UPLOAD_IMAGE = gql`
   mutation UploadImage($image: Upload!) {
     uploadImage(image: $image) {
       filename
+    }
+  }
+`;
+export const LOGOUT_MUTATION = gql`
+  mutation Logout {
+    logout {
+      success
     }
   }
 `;

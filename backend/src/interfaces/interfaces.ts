@@ -1,9 +1,11 @@
+import { Request, Response } from 'express';
+
 export interface IIngredient {
     name: string;
     measure: string;
 }
 export interface IUser {
-    id: string; // Transformed from `_id`
+    id?: string; // Transformed from `_id`
     name: string;
     email: string;
     role: 'user' | 'admin';
@@ -23,6 +25,7 @@ export interface IMeal {
     image: string;
     description: string;
     user: IUser;
+    isActive?: boolean;
 }
 export interface IMealInput {
     name: string;
@@ -34,6 +37,7 @@ export interface IMealInput {
     image: string;
     description: string;
     userId: string; // Instead of user, we use userId for input
+    isActive?: boolean;
 }
 
 export interface IUserInput {
@@ -47,8 +51,8 @@ export interface IUserInput {
 }
 export interface IUserUpdateInput {
     name: string
-    email: string    
-    isActive: boolean    
+    email: string
+    isActive: boolean
 }
 export interface ILoginInput {
     email: string;
@@ -66,4 +70,10 @@ export interface ICategory {
 
 export interface IArea {
     strArea: string;
+}
+
+export interface MyContext {
+    req: Request;
+    res: Response;
+    user?: IUser | null; // Replace `IUser` with your actual user type
 }

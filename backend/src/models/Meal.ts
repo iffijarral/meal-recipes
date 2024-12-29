@@ -17,6 +17,7 @@ interface IMealDocument extends Document {
   image: string;
   description: string;
   user: Types.ObjectId | IUserDocument;
+  isActive: boolean;
 }
 
 const mealSchema: Schema<IMealDocument> = new mongoose.Schema({
@@ -33,7 +34,8 @@ const mealSchema: Schema<IMealDocument> = new mongoose.Schema({
   youtubeLink: { type: String },
   image: { type: String },
   description: { type: String, required: false },
-  user: { type: Schema.Types.ObjectId, ref: 'User', required: true }
+  user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  isActive: { type: Boolean, default: true },
 });
 
 const Meal = mongoose.model<IMealDocument>('Meal', mealSchema)

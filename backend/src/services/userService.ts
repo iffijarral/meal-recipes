@@ -1,4 +1,5 @@
 // src/services/user.service.ts
+import { Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { IUserDocument, User } from "../models/User.js";
@@ -22,8 +23,8 @@ export const userService = {
 
     await handleEmailVerification(newUser.id);
     return newUser;
-  },
-  authenticate: async (input: ILoginInput) => {
+  }, 
+  authenticate: async (input: ILoginInput, res: Response) => {
 
     const { error } = loginSchema.validate(input);
 
@@ -49,7 +50,14 @@ export const userService = {
     // Generate JWT
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: "1h" });
 
-    return { token, user };
+    // Set JWT as a secure cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+    return { success: true, user };
   },
   // Fetch user by ID
   getUserById: async (id: string) => {
@@ -152,7 +160,7 @@ export const userService = {
 
     } catch (error) {
       console.error("Error updating user:", error);
-      throw new Error("Failed to update the user");
+      throw new Error("Failed to update the user"); 
     }
 
   },
@@ -164,7 +172,7 @@ export const userService = {
 };
 
 
-const transformUser = (user: IUserDocument): IUser => ({
+export const transformUser = (user: IUserDocument): IUser => ({
 
   id: user._id.toString(),
 

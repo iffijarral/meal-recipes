@@ -6,7 +6,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import AuthContext from "../../context/AuthContext.js";
 
 const Template = () => {
-  const { user, loading: userLoading } = useContext(AuthContext)!;
+  const { user, logout, loading: userLoading } = useContext(AuthContext)!;  
 
   const borderColor = useColorModeValue("gray.200", "gray.600");
   return (
@@ -18,8 +18,8 @@ const Template = () => {
             <Heading>J.Recipes Dashboard</Heading>
             <HStack>
               <Text>{user?.name}</Text>
-              <Button as={RouterLink} to="/logout" colorScheme="blue">
-                Logout
+              <Button as={RouterLink} onClick={logout} colorScheme="blue">
+                Logout 
               </Button>
             </HStack>
           </HStack>

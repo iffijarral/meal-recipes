@@ -1,20 +1,50 @@
 import { config } from "dotenv";
-import { userService } from "../services/userService.js";
-import { ILoginInput, IUser, IUserInput, IUserUpdateInput } from "../interfaces/interfaces.js";
+import { Response } from "express";
+import { transformUser, userService } from "../services/userService.js";
+import { ILoginInput, IUser, IUserInput, IUserUpdateInput, MyContext } from "../interfaces/interfaces.js";
+import { checkPermissionMutation, checkPermissionQuery } from "../utils/checkPermission.js";
+
 
 config(); // To access env variables
 
 export const userResolvers = {
   Query: {
-    user: async (_: any, { id }: { id: string }): Promise<IUser | null> => {
+    userInfo: async (_: any, __: any, context: { res: Response; user?: IUser }) => {
+      
+      const { user } = context;
+
+      if (!user) {
+        throw new Error('Not authenticated');
+      }
+             
+      return user;
+    },
+    user: async (_: any, { id }: { id: string }, context: { user: IUser }): Promise<IUser | null> => {
+
+      const { user } = context;
+
+      if (!user) {
+        throw new Error('Not authenticated');
+      }
+
+      checkPermissionQuery('user', user);
+
       try {
         return await userService.getUserById(id); // Use service to fetch user
       } catch (error) {
-        console.error("Error fetching user:", error);
+        console.error("Error fetching user in user resolver:", error);
         throw new Error("Failed to fetch user");
       }
     },
-    users: async (_: any, { limit, offset }: { limit?: number; offset?: number }): Promise<IUser[] | []> => {
+    users: async (_: any, { limit, offset }: { limit?: number; offset?: number }, context: { user: IUser }): Promise<IUser[] | []> => {
+
+      const { user } = context;
+
+      if (!user) {
+        throw new Error('Not authenticated');
+      }
+
+      checkPermissionQuery('users', user);
 
       try {
 
@@ -22,7 +52,7 @@ export const userResolvers = {
 
       } catch (error) {
 
-        console.error("Error fetching users:", error);
+        console.error("Error fetching users in user resolver:", error);
 
         throw new Error("Failed to fetch users");
 
@@ -46,7 +76,7 @@ export const userResolvers = {
         return newUser;
       } catch (error) {
         if (error instanceof Error) {
-          console.error('Signup error:', error.message);
+          console.error('Signup error in resolver:', error.message);
           throw new Error(error.message || "Signup failed");
         } else {
           throw new Error("Signup failed");
@@ -54,10 +84,9 @@ export const userResolvers = {
       }
     },
 
-    login: async (_: any, { input }: { input: ILoginInput }) => {
+    login: async (_: any, { input }: { input: ILoginInput }, { res }: { res: Response }) => {
       try {
-        console.log('in resolver before authentication');
-        return await userService.authenticate(input);
+        return await userService.authenticate(input, res);
       } catch (error) {
         if (error instanceof Error) {
           console.error('Login error:', error.message);
@@ -67,9 +96,40 @@ export const userResolvers = {
         }
       }
     },
-    updateUser: async (_: any, { id, input }: { id: string, input: IUserUpdateInput }): Promise<IUser | {}> => {
+    logout: async (_: any, __: any, context: { res: Response; user?: IUser }) => {
+      try {
+        const { res, user } = context;
+
+        if (!user) {
+          throw new Error('Not authenticated');
+        }
+
+        checkPermissionMutation('logout', user);
+
+
+        res.cookie('token', '', {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          expires: new Date(0), // Set the cookie to expire immediately
+        });
+        return { success: true };
+      } catch (error) {
+        console.error('Logout error in resolver:', error);
+        throw new Error("Logout failed");
+      }
+    },
+    updateUser: async (_: any, { id, input }: { id: string, input: IUserUpdateInput }, context: { user: IUser }): Promise<IUser | {}> => {
+
+      const { user } = context;
 
       try {
+        
+        if (!user) {
+          throw new Error('Not authenticated');
+        }
+
+        checkPermissionMutation('updateUser', user);
 
         return await userService.updateUser(id, input);
 
@@ -92,9 +152,13 @@ export const userResolvers = {
       }
 
     },
-    deleteUser: async (_: any, { id }: { id: string }): Promise<{ success: boolean, message: string, userId: string } | {}> => {
+    deleteUser: async (_: any, { id }: { id: string }, context: { user: IUser }): Promise<{ success: boolean, message: string, userId: string } | {}> => {
+
+      const { user } = context;
 
       try {
+
+        checkPermissionMutation('deleteUser', user);
 
         return await userService.deleteUser(id);
 
@@ -119,3 +183,5 @@ export const userResolvers = {
     },
   },
 };
+
+
